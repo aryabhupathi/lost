@@ -33,6 +33,6 @@ const venueSchema = new mongoose.Schema({
   category: { type: String, required: true },
   images: [imageSchema],
   events: [eventSchema]
-});
+},{ collection: 'try1' });
 
 module.exports = mongoose.model('Venue', venueSchema);
