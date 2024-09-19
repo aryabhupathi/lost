@@ -32,11 +32,11 @@ router.get('/:id', async (req, res) => {
 router.post('/', async (req, res) => {
   const {
     name, address, description, height, weight, width,
-    noofdays, type, category, images, events
+    days, type, category, images, events, community
   } = req.body;
 
   // Validate required fields
-  if (!name || !address || !description || !height || !weight || !width || !noofdays || !type || !category) {
+  if (!name || !address || !description || !height || !days || !weight || !width || !type || !category || !community) {
     return res.status(400).json({ message: 'Please fill in all required fields.' });
   }
 
@@ -45,15 +45,9 @@ router.post('/', async (req, res) => {
     return res.status(400).json({ message: 'Images and events must be arrays.' });
   }
 
-  // Validate event dates
-  for (let event of events) {
-    if (new Date(event.eventDate).getTime() < Date.now()) {
-      return res.status(400).json({ message: `Event ${event.eventName} has an invalid date.` });
-    }
-  }
 
   const newVenue = new Venue({
-    name, address, description, height, weight, width, noofdays,
+    name, address, description, height, weight, width, days, community,
     type, category, images, events
   });
 
@@ -61,8 +55,10 @@ router.post('/', async (req, res) => {
     const savedVenue = await newVenue.save();
     res.status(201).json(savedVenue);
   } catch (err) {
-    res.status(400).json({ message: 'Error saving venue: ' + err.message });
+    console.error('Error saving venue:', err);  // Log detailed error in the server logs
+    res.status(500).json({ message: 'Error saving venue: ' + err.message });
   }
 });
+
 
 module.exports = router;

@@ -5,7 +5,7 @@ import CardContent from "@mui/material/CardContent";
 import CardActions from "@mui/material/CardActions";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
-import { useNavigate } from "react-router-dom"; // Import useNavigate for navigation
+import { useNavigate } from "react-router-dom";
 import AddForm from "../Components/AddForm";
 
 const Product = () => {
@@ -21,33 +21,46 @@ const Product = () => {
   const navigate = useNavigate();
 
   const handleViewMore = (id) => {
-    navigate(`/product/${id}`); // Navigate to the product details page with the product id
+    navigate(`/product/${id}`);
   };
 
   const handleadd = () => {
     setShowadd(true);
   };
+
   return (
-    <Grid container margin={3} sx={{ display: "flex", flexDirection: "row" }}>
-      <Grid onClick={handleadd}>ADD NEW</Grid>
+    <Grid container spacing={2} margin={3} sx={{ display: "flex", flexDirection: "column" }}>
+      
       {showadd ? (
         <AddForm />
-      ) : (
-        <Grid>
+      ) : (<>
+        <Grid item xs={12} sx={{ display: "flex", justifyContent: "flex-end", marginBottom: 2 }}>
+        <Button variant="contained" color="primary" onClick={handleadd}>
+          ADD NEW
+        </Button>
+      </Grid>
+      <Grid container spacing={2}>
+          {/* Left Side - Filter */}
           <Grid
-            item
-            size={{ xs: 12, sm: 3 }}
-            sx={{ borderRight: "3px solid red" }}
+            item size={{xs:12, sm:3}}
+            sx={{
+              borderRight: "3px solid red",
+              paddingRight: 2,
+              marginBottom: 2,
+            }}
           >
-            <Typography>Filter</Typography>
+            <Typography variant="h6">Filter</Typography>
+            {/* Add your filter components or fields here */}
           </Grid>
-          <Grid item size={{ xs: 12, sm: 9 }}>
+
+          {/* Right Side - Cards */}
+          <Grid item size={{xs:12, sm:9}}>
             <Grid container spacing={2}>
               {data.map((product) => (
-                <Grid item size={{ xs: 12, sm: 4 }} key={product.id}>
+                <Grid item size={{xs:12, sm:4}} key={product.id}>
                   <Card
                     sx={{
-                      width: "200px",
+                      width: "100%",
                       height: "200px",
                       display: "flex",
                       flexDirection: "column",
@@ -69,8 +82,7 @@ const Product = () => {
                       <Button>Like</Button>
                       <Button onClick={() => handleViewMore(product._id)}>
                         View More
-                      </Button>{" "}
-                      {/* View More button */}
+                      </Button>
                     </CardActions>
                   </Card>
                 </Grid>
@@ -78,6 +90,7 @@ const Product = () => {
             </Grid>
           </Grid>
         </Grid>
+        </>
       )}
     </Grid>
   );

@@ -1,10 +1,19 @@
-import React, { useState } from "react";
-import { Grid, TextField, Button, MenuItem, Select, InputLabel, FormControl, IconButton } from "@mui/material";
-import dayjs from 'dayjs';
-import DeleteIcon from '@mui/icons-material/Delete';
+import React, { useState, useCallback } from "react";
+import {
+  TextField,
+  Button,
+  MenuItem,
+  Select,
+  InputLabel,
+  FormControl,
+  Typography,
+} from "@mui/material";
+import dayjs from "dayjs";
+import Grid from "@mui/material/Grid2";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 const AddForm = () => {
-  const [formData, setFormData] = useState({
+const [formData, setFormData] = useState({
     name: "",
     community: "",
     address: "",
@@ -15,39 +24,132 @@ const AddForm = () => {
     days: "",
     category: "",
     type: "",
-    productImages: [],
-    events: [{ // Initialize with one event
-      eventName: "",
-      eventOrganizer: "",
-      eventDate: dayjs().format("YYYY-MM-DD"),
-      eventDescription: "",
-      eventImages: [],
-    }],
+    images: [],
+    events: [
+      {
+        // Initialize with one event
+        eventName: "",
+        eventOrganizer: "",
+        eventDate: dayjs().format("YYYY-MM-DD"),
+        eventDescription: "",
+        eventImages: [],
+      },
+    ],
   });
 
-  const [showEventSection, setShowEventSection] = useState(true); // Initially show the event section
+  const [eventcount, seteventcount] = useState(1);
 
-  const handleInputChange = (e) => {
+  const handleInputChange = useCallback((e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  }, []);
 
-  const handleFileChange = (e) => {
-    const { name, files } = e.target;
-    setFormData({ ...formData, [name]: [...formData[name], ...files] });
-  };
+  // const handleFileChange = async (event) => {
+  //   const files = Array.from(event.target.files);
+  
+  //   // Convert each file to base64
+  //   const imageArrayPromises = files.map(async (file) => {
+  //     const base64 = await convertToBase64(file);
+  //     return {
+  //       imageUrl: base64, // Store base64 string instead of object URL
+  //     };
+  //   });
+  
+  //   // Wait for all promises to resolve
+  //   const imageArray = await Promise.all(imageArrayPromises);
+  
+  //   setFormData({
+  //     ...formData,
+  //     images: imageArray,
+  //   });
+  // };
+  
+  // const convertToBase64 = (file) => {
+  //   return new Promise((resolve, reject) => {
+  //     const fileReader = new FileReader();
+  //     fileReader.readAsDataURL(file);
+  //     fileReader.onload = () => {
+  //       resolve(fileReader.result); // Base64 string
+  //     };
+  //     fileReader.onerror = (error) => {
+  //       reject(error);
+  //     };
+  //   });
+  // };
+  
+  // const handleAddEvent = () => {
+  //   const newEvent = {
+  //     eventName: "",
+  //     eventOrganizer: "",
+  //     eventDate: dayjs().format("YYYY-MM-DD"),
+  //     eventDescription: "",
+  //     eventImages: [],
+  //   };
+  //   setFormData({ ...formData, events: [...formData.events, newEvent] });
+  //   seteventcount(eventcount + 1);
+  // };
 
+  // const handleEventChange = (e, index) => {
+  //   const { name, value } = e.target;
+  //   const updatedEvents = formData.events.map((event, idx) =>
+  //     idx === index ? { ...event, [name]: value } : event
+  //   );
+  //   setFormData({ ...formData, events: updatedEvents });
+  // };
+
+  // const handleEventFileChange = (e, index) => {
+  //   const { files } = e.target;
+  //   const updatedEvents = formData.events.map((event, idx) =>
+  //     idx === index
+  //       ? { ...event, eventImages: [...event.eventImages, ...files] }
+  //       : event
+  //   );
+  //   setFormData({ ...formData, events: updatedEvents });
+  // };
+
+  const handleFileChange = async (event) => {
+    const files = Array.from(event.target.files);
+  
+    // Convert each file to base64
+    const imageArrayPromises = files.map(async (file) => {
+      const base64 = await convertToBase64(file);
+      return { imageUrl: base64 }; // Store base64 string
+    });
+  
+    // Wait for all promises to resolve
+    const imageArray = await Promise.all(imageArrayPromises);
+  
+    setFormData({
+      ...formData,
+      images: imageArray,
+    });
+  };
+  
+  const convertToBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+      const fileReader = new FileReader();
+      fileReader.readAsDataURL(file);
+      fileReader.onload = () => {
+        resolve(fileReader.result); // Base64 string
+      };
+      fileReader.onerror = (error) => {
+        reject(error);
+      };
+    });
+  };
+  
   const handleAddEvent = () => {
     const newEvent = {
       eventName: "",
       eventOrganizer: "",
       eventDate: dayjs().format("YYYY-MM-DD"),
       eventDescription: "",
-      eventImages: [],
+      eventImages: [], // Event-specific images
     };
     setFormData({ ...formData, events: [...formData.events, newEvent] });
+    seteventcount(eventcount + 1);
   };
-
+  
   const handleEventChange = (e, index) => {
     const { name, value } = e.target;
     const updatedEvents = formData.events.map((event, idx) =>
@@ -55,33 +157,67 @@ const AddForm = () => {
     );
     setFormData({ ...formData, events: updatedEvents });
   };
-
-  const handleEventFileChange = (e, index) => {
-    const { files } = e.target;
+  
+  const handleEventFileChange = async (e, index) => {
+    const files = Array.from(e.target.files);
+  
+    // Convert event images to base64
+    const base64Promises = files.map(async (file) => {
+      const base64 = await convertToBase64(file);
+      return { imageUrl: base64 };
+    });
+  
+    const base64Images = await Promise.all(base64Promises);
+  
     const updatedEvents = formData.events.map((event, idx) =>
-      idx === index ? { ...event, eventImages: [...event.eventImages, ...files] } : event
+      idx === index
+        ? { ...event, eventImages: [...event.eventImages, ...base64Images] }
+        : event
     );
+  
     setFormData({ ...formData, events: updatedEvents });
   };
+  
 
   const handleDeleteEvent = (index) => {
     const updatedEvents = formData.events.filter((_, idx) => idx !== index);
     setFormData({ ...formData, events: updatedEvents });
+    seteventcount(eventcount - 1);
   };
-
-  const handleSubmit = (e) => {
+  
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form Data Submitted: ", formData);
+  
+    console.log('Submitting form data:', formData);
+  
+    try {
+      const response = await fetch("http://localhost:5000/api/venue", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData), // Stringify formData
+      });
+  
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to submit");
+      }
+  
+      const data = await response.json();
+      console.log("Form submitted successfully:", data);
+      alert("Venue submitted successfully");
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      alert("Error submitting form: " + error.message);
+    }
   };
-
+  
   return (
     <form onSubmit={handleSubmit}>
       <Grid container spacing={2}>
-        <Grid item xs={12}>
-          <h3>ADD</h3>
-        </Grid>
-
-        <Grid item xs={12} sm={6}>
+        <Grid item size={{ xs: 12, sm: 6 }}>
+          <Typography>Name</Typography>
           <TextField
             label="Name"
             name="name"
@@ -91,7 +227,8 @@ const AddForm = () => {
           />
         </Grid>
 
-        <Grid item xs={12} sm={6}>
+        <Grid item size={{ xs: 12, sm: 6 }}>
+          <Typography>Community</Typography>
           <TextField
             label="Community"
             name="community"
@@ -101,27 +238,32 @@ const AddForm = () => {
           />
         </Grid>
 
-        <Grid item xs={12}>
+        <Grid item size={{ xs: 12, sm: 6 }}>
+          <Typography>Address</Typography>
           <TextField
             label="Address"
             name="address"
+            minRows={3}
             value={formData.address}
             onChange={handleInputChange}
             fullWidth
           />
         </Grid>
 
-        <Grid item xs={12}>
+        <Grid item size={{ xs: 12, sm: 6 }}>
+          <Typography>Description</Typography>
           <TextField
             label="Description"
             name="description"
+            minRows={3}
             value={formData.description}
             onChange={handleInputChange}
             fullWidth
           />
         </Grid>
 
-        <Grid item xs={12} sm={4}>
+        <Grid item size={{ xs: 12, sm: 4 }}>
+          <Typography>Height</Typography>
           <TextField
             label="Height"
             name="height"
@@ -132,7 +274,8 @@ const AddForm = () => {
           />
         </Grid>
 
-        <Grid item xs={12} sm={4}>
+        <Grid item size={{ xs: 12, sm: 4 }}>
+          <Typography>Weight</Typography>
           <TextField
             label="Weight"
             name="weight"
@@ -143,7 +286,8 @@ const AddForm = () => {
           />
         </Grid>
 
-        <Grid item xs={12} sm={4}>
+        <Grid item size={{ xs: 12, sm: 4 }}>
+          <Typography>Width</Typography>
           <TextField
             label="Width"
             name="width"
@@ -154,7 +298,8 @@ const AddForm = () => {
           />
         </Grid>
 
-        <Grid item xs={12} sm={6}>
+        <Grid item size={{ xs: 12, sm: 4 }}>
+          <Typography>Days</Typography>
           <FormControl fullWidth>
             <InputLabel>Days</InputLabel>
             <Select
@@ -171,7 +316,8 @@ const AddForm = () => {
           </FormControl>
         </Grid>
 
-        <Grid item xs={12} sm={6}>
+        <Grid item size={{ xs: 12, sm: 4 }}>
+          <Typography>Category</Typography>
           <FormControl fullWidth>
             <InputLabel>Category</InputLabel>
             <Select
@@ -186,7 +332,8 @@ const AddForm = () => {
           </FormControl>
         </Grid>
 
-        <Grid item xs={12} sm={6}>
+        <Grid item size={{ xs: 12, sm: 4 }}>
+          <Typography>Type</Typography>
           <FormControl fullWidth>
             <InputLabel>Type</InputLabel>
             <Select
@@ -202,108 +349,117 @@ const AddForm = () => {
           </FormControl>
         </Grid>
 
-        <Grid item xs={12} sm={6}>
-          <Button variant="contained" component="label">
-            Upload Product Images
-            <input
-              type="file"
-              name="productImages"
-              hidden
-              multiple
-              onChange={handleFileChange}
-            />
-          </Button>
+        <Grid item size={{ xs: 12 }}>
+          <Typography>Upload Product Images</Typography>
+          <TextField
+            type="file"
+            name="productImages"
+            inputProps={{
+              multiple: true,
+            }}
+            onChange={handleFileChange}
+          />
         </Grid>
-
-        {showEventSection && formData.events.map((event, index) => (
-          <React.Fragment key={index}>
-            <Grid container spacing={2} item xs={12}>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  label="Event Name"
-                  name="eventName"
-                  value={event.eventName}
-                  onChange={(e) => handleEventChange(e, index)}
-                  fullWidth
-                />
-              </Grid>
-
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  label="Event Organizer"
-                  name="eventOrganizer"
-                  value={event.eventOrganizer}
-                  onChange={(e) => handleEventChange(e, index)}
-                  fullWidth
-                />
-              </Grid>
-
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  label="Event Date"
-                  name="eventDate"
-                  type="date"
-                  value={event.eventDate}
-                  onChange={(e) => handleEventChange(e, index)}
-                  fullWidth
-                />
-              </Grid>
-
-              <Grid item xs={12}>
-                <TextField
-                  label="Event Description"
-                  name="eventDescription"
-                  value={event.eventDescription}
-                  onChange={(e) => handleEventChange(e, index)}
-                  fullWidth
-                />
-              </Grid>
-
-              <Grid item xs={12} sm={6}>
-                <Button variant="contained" component="label">
-                  Upload Event Images
-                  <input
-                    type="file"
-                    name="eventImages"
-                    hidden
-                    multiple
-                    onChange={(e) => handleEventFileChange(e, index)}
-                  />
-                </Button>
-              </Grid>
-
-              <Grid item xs={12} sm={6}>
-                <IconButton onClick={() => handleDeleteEvent(index)}>
-                  <DeleteIcon color="error" />
-                </IconButton>
-              </Grid>
-            </Grid>
-          </React.Fragment>
-        ))}
-
         <Grid item xs={12}>
-          <Button
-            variant="contained"
-            onClick={handleAddEvent}
-            disabled={!showEventSection}
-          >
+          <Button variant="contained" onClick={handleAddEvent}>
             Add Another Event
           </Button>
         </Grid>
+        <Grid item xs={12} margin={3} padding={3}>
+          <hr />
+          {formData.events.map((event, index) => (
+            <React.Fragment key={index}>
+              <Grid
+                item
+                xs={12}
+                sx={{ display: "flex", justifyContent: "space-evenly" }}
+              >
+                <Typography variant="h5">Event {index + 1}</Typography>
 
-        <Grid item xs={12}>
-          <Button
-            variant="contained"
-            onClick={() => setShowEventSection(!showEventSection)}
-          >
-            {showEventSection ? "Hide Event Section" : "Add Event"}
-          </Button>
+                <Button
+                  onClick={() => handleDeleteEvent(index)}
+                  variant="contained"
+                  color="error"
+                >
+                  DELETE
+                  <DeleteIcon />
+                </Button>
+              </Grid>
+              <hr />
+              <Grid container spacing={2} item xs={12}>
+                <Grid item size={{ xs: 12, sm: 6 }}>
+                  <Typography>Event Name</Typography>
+                  <TextField
+                    label="Event Name"
+                    name="eventName"
+                    value={event.eventName}
+                    onChange={(e) => handleEventChange(e, index)}
+                    fullWidth
+                  />
+                </Grid>
+
+                <Grid item size={{ xs: 12, sm: 6 }}>
+                  <Typography>Event Organizer</Typography>
+                  <TextField
+                    label="Event Organizer"
+                    name="eventOrganizer"
+                    value={event.eventOrganizer}
+                    onChange={(e) => handleEventChange(e, index)}
+                    fullWidth
+                  />
+                </Grid>
+
+                <Grid item size={{ xs: 12, sm: 6 }}>
+                  <Typography>Event Date</Typography>
+                  <TextField
+                    label="Event Date"
+                    name="eventDate"
+                    type="date"
+                    value={event.eventDate}
+                    onChange={(e) => handleEventChange(e, index)}
+                    fullWidth
+                  />
+                </Grid>
+
+                <Grid item size={{ xs: 12, sm: 6 }}>
+                  <Typography>Event Description</Typography>
+                  <TextField
+                    label="Event Description"
+                    name="eventDescription"
+                    minRows={3}
+                    value={event.eventDescription}
+                    onChange={(e) => handleEventChange(e, index)}
+                    fullWidth
+                  />
+                </Grid>
+
+                <Grid item size={{ xs: 12, sm: 6 }}>
+                  <Typography>Upload Event Images</Typography>
+                  <TextField
+                    type="file"
+                    name="eventImages"
+                    inputProps={{
+                      multiple: true,
+                    }}
+                    onChange={(e) => handleEventFileChange(e, index)}
+                  />
+                </Grid>
+              </Grid>
+            </React.Fragment>
+          ))}
+          <hr />
         </Grid>
 
-        <Grid item xs={12}>
-          <Button type="submit" variant="contained" fullWidth>
-            Submit
-          </Button>
+        <Grid container spacing={2}>
+          {/* Your form fields and event section remain unchanged */}
+          <Grid item xs={12}>
+            <Button
+              type="submit"
+              variant="contained"
+              fullWidth>
+              Submit
+            </Button>
+          </Grid>
         </Grid>
       </Grid>
     </form>
