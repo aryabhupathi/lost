@@ -27,12 +27,20 @@ const Learn = () => {
   const [disliked, setDisliked] = useState(false);
   const [loved, setLoved] = useState(false);
   const [currentImage, setCurrentImage] = useState("");
+  const [mainImageModal, setMainImageModal] = useState({
+    open: false,
+    imageUrl: "",
+  });
 
   // Function to open modal and set event images
   const handleOpenModal = (images, eventName) => {
     setSelectedEventImages(images);
     setSelectedEventName(eventName);
     setOpen(true);
+  };
+
+  const handleImageModal = (imageUrl) => {
+    setMainImageModal({ open: true, imageUrl });
   };
 
   const handleButtonClick = (buttonType) => {
@@ -49,6 +57,10 @@ const Learn = () => {
 
   const handleCloseModal = () => {
     setOpen(false);
+  };
+
+  const handleCloseMainImageModal = () => {
+    setMainImageModal({ open: false, imageUrl: "" });
   };
 
   useEffect(() => {
@@ -162,7 +174,8 @@ const Learn = () => {
                       component="img"
                       image={image.imageUrl}
                       alt={`Event Image ${imgIndex + 1}`}
-                      sx={{ height: 200 }}
+                      sx={{ height: 200, cursor: "pointer" }}
+                      onClick={() => handleImageModal(image.imageUrl)}
                     />
                   </Card>
                 </Grid>
@@ -191,6 +204,8 @@ const Learn = () => {
           customers make informed decisions.
         </Typography>
       </Box>
+
+      {/* Modal for multiple event images */}
       <Modal
         open={open}
         onClose={handleCloseModal}
@@ -257,7 +272,7 @@ const Learn = () => {
                     onClick={() => handleButtonClick("love")}
                   >
                     {loved ? (
-                      <FavoriteIcon style={{ color: "red" }} />
+                      <FavoriteIcon style={{ color: "pink" }} />
                     ) : (
                       <FavoriteBorderOutlinedIcon />
                     )}
@@ -267,6 +282,65 @@ const Learn = () => {
             ))}
           </Grid>
         </Grid>
+      </Modal>
+
+      {/* Modal for individual image */}
+      <Modal
+        open={mainImageModal.open}
+        onClose={handleCloseMainImageModal}
+        sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}
+      >
+        <Box sx={{ padding: 3, backgroundColor: "white", boxShadow: 4 }}>
+          <img
+            src={mainImageModal.imageUrl}
+            alt="Selected Event"
+            style={{
+              objectFit: "contain",
+            }}
+          />
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              mb: 2,
+              width: "100%",
+            }}
+          >
+            <Button
+              sx={{ mb: 1, flex: 1, mx: 0.5 }}
+              onClick={() => handleButtonClick("like")}
+            >
+              {liked ? (
+                <ThumbUpIcon style={{ color: "green" }} />
+              ) : (
+                <ThumbUpOutlinedIcon />
+              )}
+            </Button>
+            <Button
+              sx={{ mb: 1, flex: 1, mx: 0.5 }}
+              onClick={() => handleButtonClick("dislike")}
+            >
+              {disliked ? (
+                <ThumbDownIcon style={{ color: "red" }} />
+              ) : (
+                <ThumbDownAltOutlinedIcon />
+              )}
+            </Button>
+            <Button
+              sx={{ mb: 1, flex: 1, mx: 0.5 }}
+              onClick={() => handleButtonClick("love")}
+            >
+              {loved ? (
+                <FavoriteIcon style={{ color: "pink" }} />
+              ) : (
+                <FavoriteBorderOutlinedIcon />
+              )}
+            </Button>
+          </Box>
+          <Button onClick={handleCloseMainImageModal} sx={{ marginTop: 2 }}>
+            Close
+          </Button>
+        </Box>
       </Modal>
     </Container>
   );
