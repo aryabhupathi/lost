@@ -33,7 +33,7 @@ const venueSchema = new mongoose.Schema({
   height: { type: Number, required: true },
   weight: { type: Number, required: true },
   width: { type: Number, required: true },
-  days: { type: Number, required: true },
+  days: { type: Number, required: false },
   type: { type: String, required: true },
   category: { type: String, required: true },
   images: [imageSchema],
