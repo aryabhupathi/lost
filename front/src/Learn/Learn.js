@@ -438,7 +438,7 @@ import Grid from "@mui/material/Grid2";
 //   image={currentImage}
 //   alt={`Event Image`}
 //   sx={{
-//     height: '100%', 
+//     height: '100%',
 //     width: '100%',  // Ensures the image takes the full width of the card
 //     cursor: "pointer",
 //     objectFit: 'contain', // Ensures the entire image fits inside the card
@@ -461,7 +461,7 @@ import Grid from "@mui/material/Grid2";
 //                     height: "100%",
 //                   }}
 //                 />
-                
+
 //               </Card>
 //             ))}
 //           </Box>
@@ -519,7 +519,7 @@ import Grid from "@mui/material/Grid2";
 //                       image={image.imageUrl}
 //                       alt={`Event Image ${imgIndex + 1}`}
 //                       sx={{
-//     height: '100%', 
+//     height: '100%',
 //     width: '100%',  // Ensures the image takes the full width of the card
 //     cursor: "pointer",
 //     objectFit: 'contain', // Ensures the entire image fits inside the card
@@ -573,7 +573,7 @@ import Grid from "@mui/material/Grid2";
 //                     image={image.imageUrl}
 //                     alt={`Event Image ${index + 1}`}
 //                     sx={{
-//     height: '100%', 
+//     height: '100%',
 //     width: '100%',  // Ensures the image takes the full width of the card
 //     cursor: "pointer",
 //     objectFit: 'contain', // Ensures the entire image fits inside the card
@@ -678,21 +678,30 @@ const Learn = () => {
       </Typography>
 
       <Grid container spacing={4}>
-        <Grid item size = {{xs:12, sm:6}}>
+        <Grid item size={{ xs: 12, sm: 6 }}>
           <Card elevation={2} sx={{ height: "300px" }}>
             <CardMedia
               component="img"
               image={currentImage}
               alt={`Event Image`}
               sx={{
-                height: '100%',
-                width: '100%',
+                height: "100%",
+                width: "100%",
                 cursor: "pointer",
-                objectFit: 'contain', // Ensures the entire image fits inside the card
+                objectFit: "contain", // Ensures the entire image fits inside the card
               }}
             />
           </Card>
-          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, marginTop: 1, border:'2px dotted gold', overflowX: 'scroll' }}>
+          <Box
+            sx={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: 1,
+              marginTop: 1,
+              border: "2px dotted gold",
+              overflowX: "scroll",
+            }}
+          >
             {product.images.map((image, index) => (
               <Card
                 key={index}
@@ -704,9 +713,9 @@ const Learn = () => {
                   image={image.imageUrl}
                   alt={`Thumbnail ${index + 1}`}
                   sx={{
-                    height: '100%',
-                    width: '100%',
-                    objectFit: 'cover', // Ensures the thumbnail covers the entire card space
+                    height: "100%",
+                    width: "100%",
+                    objectFit: "cover", // Ensures the thumbnail covers the entire card space
                   }}
                 />
               </Card>
@@ -714,7 +723,7 @@ const Learn = () => {
           </Box>
         </Grid>
 
-        <Grid item size = {{xs:12, sm:6}}>
+        <Grid item size={{ xs: 12, sm: 6 }}>
           <Typography variant="body1">{product.description}</Typography>
           <Typography variant="body1">{product.community}</Typography>
           <Typography variant="h5" gutterBottom>
@@ -759,17 +768,17 @@ const Learn = () => {
 
             <Grid container spacing={4}>
               {event.eventImages.slice(0, 5).map((image, imgIndex) => (
-                <Grid item size={{xs:12, sm:4}} mt={3} key={imgIndex}>
-                  <Card sx={{ height: "250px"}}>
+                <Grid item size={{ xs: 12, sm: 4 }} mt={3} key={imgIndex}>
+                  <Card sx={{ height: "250px" }}>
                     <CardMedia
                       component="img"
                       image={image.imageUrl}
                       alt={`Event Image ${imgIndex + 1}`}
                       sx={{
-                        height: '100%',
-                        width: '100%',
+                        height: "100%",
+                        width: "100%",
                         cursor: "pointer",
-                        objectFit: 'contain', // Adjust for full image view
+                        objectFit: "contain", // Adjust for full image view
                       }}
                       onClick={() => handleImageModal(image.imageUrl)}
                     />
@@ -778,7 +787,6 @@ const Learn = () => {
               ))}
               {event.eventImages.length > 5 && (
                 <Button
-                  variant="outlined"
                   color="primary"
                   onClick={() =>
                     handleOpenModal(event.eventImages, event.eventName)
@@ -800,30 +808,45 @@ const Learn = () => {
             top: "50%",
             left: "50%",
             transform: "translate(-50%, -50%)",
-            width: "90%",
-            maxHeight: "90%",
+            width: "60%",
+            maxHeight: "80%",
             bgcolor: "background.paper",
             boxShadow: 24,
             p: 4,
             overflowY: "auto",
           }}
         >
-          <Typography variant="h5" gutterBottom>
-            {selectedEventName}
-          </Typography>
-          <Grid container spacing={4}>
+          <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+            <Typography variant="h5" gutterBottom>
+              {selectedEventName}
+            </Typography>
+            <Button
+              color="error"
+              variant="outlined"
+              sx={{
+                "&:hover": {
+                  variant: "contained",
+                },
+              }}
+              onClick={handleCloseModal}
+            >
+              Close
+            </Button>
+          </Box>
+          <Grid container spacing={4} mt={2}>
             {selectedEventImages.map((image, index) => (
-              <Grid item size={{xs:12, sm:4}} key={index}>
-                <Card sx={{ height: "250px"}}>
+              <Grid item size={{ xs: 12, sm: 4 }} key={index}>
+                <Card sx={{ height: "250px" }}>
+                  {index + 1}
                   <CardMedia
                     component="img"
                     image={image.imageUrl}
                     alt={`Event Image ${index + 1}`}
                     sx={{
-                      height: '100%',
-                      width: '100%',
+                      height: "100%",
+                      width: "100%",
                       cursor: "pointer",
-                      objectFit: 'contain', // Adjust for full image view
+                      objectFit: "contain", // Adjust for full image view
                     }}
                     onClick={() => handleImageModal(image.imageUrl)}
                   />
@@ -847,25 +870,38 @@ const Learn = () => {
             top: "50%",
             left: "50%",
             transform: "translate(-50%, -50%)",
-            width: "90%",
-            maxHeight: "90%",
+            width: "40%",
+            maxHeight: "80%",
             bgcolor: "background.paper",
             boxShadow: 24,
             p: 4,
             overflowY: "auto",
           }}
         >
+          <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+            <Button
+              color="error"
+              variant="outlined"
+              sx={{
+                "&:hover": {
+                  variant: "contained",
+                },
+              }}
+              onClick={handleCloseMainImageModal}
+            >
+              Close
+            </Button>
+          </Box>
           <CardMedia
             component="img"
             image={mainImageModal.imageUrl}
             alt="Main Image"
-            sx={{ height: "100%", width: "100%", objectFit: 'contain' }}
+            sx={{ objectFit: "contain", height: "400px", width: "500px" }}
           />
         </Box>
       </Modal>
     </Container>
   );
 };
-
 
 export default Learn;

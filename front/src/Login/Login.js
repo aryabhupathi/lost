@@ -1,183 +1,5 @@
-// import React, { useState } from "react";
-// import { Container, Typography, TextField, Button, Box } from "@mui/material";
-// import { useNavigate } from "react-router-dom"; // Import useHistory for navigation
-// import InputAdornment from "@mui/material/InputAdornment";
-// import Visibility from "@mui/icons-material/Visibility";
-// import VisibilityOff from "@mui/icons-material/VisibilityOff";
-// import IconButton from "@mui/material/IconButton";
-
-// const Login = () => {
-//   const styles = {
-//     root: {
-//       display: "flex",
-//       flexDirection: "column",
-//       justifyContent: "center",
-//       alignItems: "center",
-//       height: "100vh",
-//       backgroundColor: "#f5f5f5",
-//       padding: "16px",
-//     },
-//     form: {
-//       width: "100%",
-//       maxWidth: "400px",
-//       padding: "16px",
-//       backgroundColor: "white",
-//       borderRadius: "8px",
-//       boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
-//     },
-//     button: {
-//       marginTop: "16px",
-//     },
-//   };
-
-//   const [email, setEmail] = useState("");
-//   const [password, setPassword] = useState("");
-//   const [showPassword, setShowPassword] = useState(false);
-//   const [login, setLogin] = useState(false)
-//   const [signup, setSignup] = useState(false)
-//   const navigate = useNavigate(); // Initialize useHistory
-
-//   const handleChange = (e) => {
-//     const { name, value } = e.target; // Destructure name and value
-//     if (name === "email") {
-//       setEmail(value);
-//     } else {
-//       setPassword(value);
-//     }
-//   };
-
-//   const togglePasswordVisibility = () => {
-//     setShowPassword(!showPassword);
-//   };
-
-//   const handleLogin = (e) => {
-//     setLogin(true)
-//   }
-
-//   const handleSignup = (e) => {
-//     setSignup(true)
-//   }
-
-//   const handleSubmit = (e) => {
-//     e.preventDefault();
-//     // Check credentials
-//     if (email === "arya@gmail.com" && password === "123abc") {
-//       navigate("/home"); // Navigate to /home on successful login
-//     } else {
-//       alert("Invalid email or password"); // Alert for invalid credentials
-//     }
-//   };
-
-//   return (
-//     <Container style={styles.root}>
-//       <Box component="form" style={styles.form} onSubmit={handleSubmit}>
-//         <Box
-//           sx={{
-//             border: "3px solid red",
-//             display: "flex",
-//             justifyContent: "space-between",
-//           }}
-//         >
-//           <Button onClick = {handleLogin}>Login</Button>
-//           <Button onClick={handleSignup}>Signup</Button>
-//         </Box>
-//         {login && <Box>
-//         <Typography variant="h4" align="center" gutterBottom>
-//           Login
-//         </Typography>
-//         <Typography>Email</Typography>
-//         <TextField
-//           variant="outlined"
-//           fullWidth
-//           required
-//           margin="normal"
-//           name="email"
-//           value={email}
-//           onChange={handleChange}
-//         />
-
-//         <Typography>Password</Typography>
-
-//         <TextField
-//           fullWidth
-//           id="outlined-adornment-password"
-//           type={showPassword ? "text" : "password"}
-//           endAdornment={
-//             <InputAdornment position="end">
-//               <IconButton
-//                 aria-label="toggle password visibility"
-//                 onClick={togglePasswordVisibility}
-//                 edge="end"
-//               >
-//                 {showPassword ? <VisibilityOff /> : <Visibility />}
-//               </IconButton>
-//             </InputAdornment>
-//           }
-//         />
-
-//         <Button
-//           type="submit"
-//           variant="contained"
-//           color="primary"
-//           fullWidth
-//           style={styles.button}
-//         >
-//           Login
-//         </Button>
-//       </Box>}
-//       {signup && <Box>
-//         <Typography variant="h4" align="center" gutterBottom>
-//           Signup
-//         </Typography>
-//         <Typography>Email</Typography>
-//         <TextField
-//           variant="outlined"
-//           fullWidth
-//           required
-//           margin="normal"
-//           name="email"
-//           value={email}
-//           onChange={handleChange}
-//         />
-
-//         <Typography>Password</Typography>
-
-//         <TextField
-//           fullWidth
-//           id="outlined-adornment-password"
-//           type={showPassword ? "text" : "password"}
-//           endAdornment={
-//             <InputAdornment position="end">
-//               <IconButton
-//                 aria-label="toggle password visibility"
-//                 onClick={togglePasswordVisibility}
-//                 edge="end"
-//               >
-//                 {showPassword ? <VisibilityOff /> : <Visibility />}
-//               </IconButton>
-//             </InputAdornment>
-//           }
-//         />
-
-//         <Button
-//           type="submit"
-//           variant="contained"
-//           color="primary"
-//           fullWidth
-//           style={styles.button}
-//         >
-//           Signup
-//         </Button>
-//       </Box>}
-//       </Box>
-//     </Container>
-//   );
-// };
-
-// export default Login;
-
 import React, { useState } from "react";
-import { Container, Typography, TextField, Button, Box, InputAdornment, IconButton } from "@mui/material";
+import { Container, Typography, TextField, Button, Box, InputAdornment, IconButton, Alert } from "@mui/material";
 import { useNavigate } from "react-router-dom"; 
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
@@ -211,6 +33,8 @@ const Login = () => {
   const [securityQuestion, setSecurityQuestion] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLogin, setIsLogin] = useState(true);
+  const [message, setMessage] = useState(""); // State for UI message
+  const [messageType, setMessageType] = useState("info"); // State for message type (success/error/info)
   const navigate = useNavigate(); 
 
   const handleChange = (e) => {
@@ -224,18 +48,39 @@ const Login = () => {
     setShowPassword(!showPassword);
   };
 
+  const checkCredentials = async () => {
+    try {
+      const response = await fetch(`http://localhost:5000/api/userr?email=${email}&password=${password}`);
+      if (response.ok) {
+        const userData = await response.json();
+        return userData.exists; // Return true if user exists
+      } else {
+        return false; // Return false if user doesn't exist
+      }
+    } catch (error) {
+      console.error("Error checking credentials:", error);
+      return false;
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const userExists = await checkCredentials();
+
     if (isLogin) {
-      if (email === "arya@gmail.com" && password === "123abc") {
-        navigate("/home"); 
+      if (userExists) {
+        setMessageType("success");
+        setMessage("Login successful, redirecting...");
+        setTimeout(() => navigate("/home"), 1500); // Delay navigation for a better user experience
       } else {
-        alert("Invalid email or password");
+        setMessageType("error");
+        setMessage("User not found, please sign up.");
+        setIsLogin(false); // Automatically switch to signup
       }
     } else {
       // Signup process
       try {
-        const response = await fetch("YOUR_API_ENDPOINT/signup", {
+        const response = await fetch("http://localhost:5000/api/userr", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -244,16 +89,18 @@ const Login = () => {
         });
 
         if (response.ok) {
-          const data = await response.json();
-          alert("Signup successful!"); // Handle successful signup
-          navigate("/home"); // Optionally navigate to home
+          setMessageType("success");
+          setMessage("Signup successful, redirecting...");
+          setTimeout(() => navigate("/home"), 1500);
         } else {
           const errorData = await response.json();
-          alert(`Signup failed: ${errorData.message}`); // Handle errors
+          setMessageType("error");
+          setMessage(`Signup failed: ${errorData.message}`);
         }
       } catch (error) {
+        setMessageType("error");
+        setMessage("An error occurred during signup.");
         console.error("Error during signup:", error);
-        alert("An error occurred during signup.");
       }
     }
   };
@@ -269,7 +116,14 @@ const Login = () => {
         <Typography variant="h4" align="center" gutterBottom>
           {isLogin ? "Login" : "Signup"}
         </Typography>
-        
+
+        {/* Conditionally render the message */}
+        {message && (
+          <Alert severity={messageType} style={{ marginBottom: "16px" }}>
+            {message}
+          </Alert>
+        )}
+
         <TextField
           label="Email"
           variant="outlined"
@@ -330,3 +184,4 @@ const Login = () => {
 };
 
 export default Login;
+
