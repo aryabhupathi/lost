@@ -1,22 +1,18 @@
-import React, { useState, useEffect } from "react";
-import {
-  Button,
-  Modal,
-  Box,
-  Pagination,
-} from "@mui/material";
-import Grid from "@mui/material/Grid2";
+import { useState, useEffect } from "react";
+import { Button, Modal, Box, Pagination } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import AddForm from "../Components/AddForm";
-import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import ThumbUpOutlinedIcon from "@mui/icons-material/ThumbUpOutlined";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import ThumbUpIcon from "@mui/icons-material/ThumbUp";
+import ThumbUpOutlinedIcon from "@mui/icons-material/ThumbUpOutlined";
 import ThumbDownIcon from "@mui/icons-material/ThumbDown";
 import ThumbDownAltOutlinedIcon from "@mui/icons-material/ThumbDownAltOutlined";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import FavoriteBorderOutlinedIcon from "@mui/icons-material/FavoriteBorderOutlined";
+import { useAuth } from "../App"; // Import the useAuth hook
+import AddForm from "../Components/AddForm";
 import DisplayCard from "../Components/DisplayCard";
+import Grid from "@mui/material/Grid2";
 
 const Product = () => {
   const [data, setData] = useState([]);
@@ -33,6 +29,7 @@ const Product = () => {
   const [currentImageDislikes, setCurrentImageDislikes] = useState(0);
   const [currentImageLoves, setCurrentImageLoves] = useState(0);
   const itemsPerPage = 12;
+  const { tok } = useAuth(); // Get email from AuthContext
 
   useEffect(() => {
     const fetchData = async () => {
@@ -71,18 +68,9 @@ const Product = () => {
     setLoved(false);
   };
 
-  const updateImageCounts = async (
-    venueId,
-    imageUrl,
-    like,
-    dislike,
-    love,
-    days
-  ) => {
-    // const url = `/api/venues/${venueId}/images`; // Adjust the API route as needed
+  const updateImageCounts = async (venueId, imageUrl, like, dislike, love) => {
     const url = `http://localhost:5000/api/venue/${venueId}/images`;
-
-    const data = { imageUrl, like, dislike, love, days };
+    const data = { imageUrl, like, dislike, love };
 
     try {
       const response = await fetch(url, {
@@ -126,7 +114,6 @@ const Product = () => {
       setCurrentImageLoves(newLoveCount);
     }
 
-    // Update all counts (like, dislike, love) in the backend
     updateImageCounts(
       selectedVenueId,
       selectedImage,
@@ -184,41 +171,43 @@ const Product = () => {
         <AddForm />
       ) : (
         <>
-          <Grid
-            item
-            xs={12}
-            sx={{
-              display: "flex",
-              justifyContent: "flex-end",
-              marginBottom: 2,
-            }}
-          >
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={() => setShowAdd(true)}
+          {tok === "1234" && ( // Conditionally render the "ADD NEW" button
+            <Grid
+              item
+              xs={12}
+              sx={{
+                display: "flex",
+                justifyContent: "flex-end",
+                marginBottom: 2,
+              }}
             >
-              ADD NEW
-            </Button>
-          </Grid>
-          <DisplayCard 
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={() => setShowAdd(true)}
+              >
+                ADD NEW
+              </Button>
+            </Grid>
+          )}
+          <DisplayCard
             currentItems={currentItems}
             handleImageClick={handleImageClick}
             handleViewMore={handleViewMore}
             currentPage={currentPage}
             handlePageChange={handlePageChange}
             itemsPerPage={itemsPerPage}
-            totalItems={data.length}/>
-            
-            <Grid xs={12} justifyContent={"center"}>
-        <Pagination
-          count={Math.ceil(data.length / itemsPerPage)}
-          page={currentPage}
-          onChange={handlePageChange}
-          color="primary"
-          sx={{ mt: 3 }}
-        />
-        </Grid>
+            totalItems={data.length}
+          />
+          <Grid xs={12} display={"flex"} justifyContent={"center"}>
+            <Pagination
+              count={Math.ceil(data.length / itemsPerPage)}
+              page={currentPage}
+              onChange={handlePageChange}
+              color="primary"
+              sx={{ mt: 3 }}
+            />
+          </Grid>
         </>
       )}
 
@@ -229,6 +218,8 @@ const Product = () => {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
+          height:'200px',
+          top:'25%'
         }}
       >
         <Box
@@ -263,16 +254,6 @@ const Product = () => {
             />
             <Button
               onClick={handleNextImage}
-              disabled={
-                !selectedImage ||
-                currentImageIndex ===
-                  data.find((product) =>
-                    product.images.some(
-                      (image) => image.imageUrl === selectedImage
-                    )
-                  )?.images.length -
-                    1
-              }
               sx={{
                 position: "absolute",
                 right: -40,
@@ -283,45 +264,30 @@ const Product = () => {
               <ArrowForwardIcon />
             </Button>
           </Box>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              mb: 2,
-              width: "100%",
-            }}
-          >
+          <Box sx={{ display: "flex", justifyContent: "center" }}>
             <Button
-              sx={{ mb: 1, flex: 1, mx: 0.5 }}
               onClick={() => handleButtonClick("like")}
+              color="primary"
+              startIcon={liked ? <ThumbUpIcon sx={{color:'green'}}/> : <ThumbUpOutlinedIcon sx={{color:'green'}}/>}
             >
-              {liked ? (
-                <ThumbUpIcon sx={{ color: "green" }} />
-              ) : (
-                <ThumbUpOutlinedIcon sx={{ color: "green" }} />
-              )}
               {currentImageLikes}
             </Button>
             <Button
-              sx={{ mb: 1, flex: 1, mx: 0.5 }}
               onClick={() => handleButtonClick("dislike")}
+              color="primary"
+              startIcon={
+                disliked ? <ThumbDownIcon sx={{color:'yellow'}}/> : <ThumbDownAltOutlinedIcon sx={{color:'yellow'}}/>
+              }
             >
-              {disliked ? (
-                <ThumbDownIcon sx={{ color: "black" }} />
-              ) : (
-                <ThumbDownAltOutlinedIcon sx={{ color: "black" }} />
-              )}
               {currentImageDislikes}
             </Button>
             <Button
-              sx={{ mb: 1, flex: 1, mx: 0.5 }}
               onClick={() => handleButtonClick("love")}
+              color="primary"
+              startIcon={
+                loved ? <FavoriteIcon sx={{color:'red'}}/> : <FavoriteBorderOutlinedIcon sx={{color:'red'}}/>
+              }
             >
-              {loved ? (
-                <FavoriteIcon sx={{ color: "#e63946" }} />
-              ) : (
-                <FavoriteBorderOutlinedIcon sx={{ color: "#e63946" }} />
-              )}
               {currentImageLoves}
             </Button>
           </Box>
@@ -332,4 +298,3 @@ const Product = () => {
 };
 
 export default Product;
-

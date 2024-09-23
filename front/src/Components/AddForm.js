@@ -328,6 +328,10 @@ const [formData, setFormData] = useState({
             >
               <MenuItem value="Indoor">Indoor</MenuItem>
               <MenuItem value="Outdoor">Outdoor</MenuItem>
+              <MenuItem value="Indoor">Indoor</MenuItem>
+              <MenuItem value="Outdoor">Outdoor</MenuItem>
+              <MenuItem value="Indoor">Indoor</MenuItem>
+              <MenuItem value="Outdoor">Outdoor</MenuItem>
             </Select>
           </FormControl>
         </Grid>

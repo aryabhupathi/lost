@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Typography,
   Card,
@@ -8,32 +8,82 @@ import {
   Button,
 } from "@mui/material";
 import Grid from "@mui/material/Grid2";
-const DisplayCard = ({
-    currentItems,
-    handleImageClick,
-    handleViewMore,}) => {
+import Filternames from "./Filternames";
+const DisplayCard = ({ currentItems, handleImageClick, handleViewMore }) => {
+  const [filters, setFilters] = useState({
+    community: [],
+    height: [],
+    weight: [],
+    days: [],
+    category: [],
+    type: [],
+  });
+
+  const handleFilterChange = (newFilters) => {
+    setFilters(newFilters);
+  };
+
+  const filteredItems = currentItems.filter((item) => {
+    const isCommunityMatch =
+      filters.community.length === 0 ||
+      filters.community.includes(item.community);
+
+    const isHeightMatch =
+      filters.height.length === 0 ||
+      filters.height.some(
+        ([min, max]) => item.height >= min && item.height <= max
+      );
+
+    const isWeightMatch =
+      filters.weight.length === 0 ||
+      filters.weight.some(
+        ([min, max]) => item.weight >= min && item.weight <= max
+      );
+
+    const isDaysMatch =
+      filters.days.length === 0 ||
+      filters.days.some(([min, max]) => item.days >= min && item.days <= max);
+
+    const isCategoryMatch =
+      filters.category.length === 0 || filters.category.includes(item.category);
+    const isTypeMatch =
+      filters.type.length === 0 || filters.type.includes(item.type);
+
+    return (
+      isCommunityMatch &&
+      isHeightMatch &&
+      isWeightMatch &&
+      isDaysMatch &&
+      isCategoryMatch &&
+      isTypeMatch
+    );
+  });
+
   return (
     <Grid container spacing={3}>
       <Grid
-        item
-        size={{ xs: 12, sm: 3 }}
-        sx={{
-          borderRight: "3px solid red",
-          paddingRight: 2,
-          marginBottom: 2,
-        }}
-      >
-        <Typography variant="h6">Filter</Typography>
-        {/* Add your filter components or fields here */}
-      </Grid>
+  item
+  size={{xs:'12',sm:'3'}} // Correct the typo "sise" to "xs"
+  sx={{ 
+    borderRight: "3px solid red", 
+    paddingRight: 2, 
+    marginBottom: 2, 
+    display: 'flex', 
+    flexDirection: 'column', 
+  }}
+>
+  <Typography variant="h6" align="center">Filter</Typography> {/* Use align="center" to center text */}
+  <Filternames onFilterChange={handleFilterChange} />
+</Grid>
+
       <Grid item size={{ xs: 12, sm: 9 }}>
         <Grid container spacing={3}>
-          {currentItems.map((product) => (
+          {filteredItems.map((product) => (
             <Grid item size={{ xs: 12, sm: 4 }} key={product.id}>
               <Card
                 sx={{
                   height: "350px",
-                  width: "250px",
+                  width: "200px",
                   display: "flex",
                   flexDirection: "column",
                 }}
@@ -96,5 +146,5 @@ const DisplayCard = ({
     </Grid>
   );
 };
-export default DisplayCard;
 
+export default DisplayCard;

@@ -1,8 +1,18 @@
-import React, { useState } from "react";
-import { Container, Typography, TextField, Button, Box, InputAdornment, IconButton, Alert } from "@mui/material";
-import { useNavigate } from "react-router-dom"; 
+import React, { useState, useEffect } from "react";
+import {
+  Container,
+  Typography,
+  TextField,
+  Button,
+  Box,
+  InputAdornment,
+  IconButton,
+  Alert,
+} from "@mui/material";
+import { useNavigate } from "react-router-dom";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import { useAuth } from "../App";
 
 const Login = () => {
   const styles = {
@@ -33,12 +43,15 @@ const Login = () => {
   const [securityQuestion, setSecurityQuestion] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLogin, setIsLogin] = useState(true);
-  const [message, setMessage] = useState(""); // State for UI message
-  const [messageType, setMessageType] = useState("info"); // State for message type (success/error/info)
-  const navigate = useNavigate(); 
+  const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState("info");
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const { settok } = useAuth();
 
   const handleChange = (e) => {
-    const { name, value } = e.target; 
+    const { name, value } = e.target;
+    console.log(`Changed ${name}: ${value}`); // Log the field name and value
     if (name === "email") setEmail(value);
     else if (name === "password") setPassword(value);
     else if (name === "securityQuestion") setSecurityQuestion(value);
@@ -50,45 +63,59 @@ const Login = () => {
 
   const checkCredentials = async () => {
     try {
-      const response = await fetch(`http://localhost:5000/api/userr?email=${email}&password=${password}`);
+      console.log("Checking credentials for:", email); // Log email being checked
+      const response = await fetch(
+        `http://localhost:5000/api/userr?email=${email}`
+      );
       if (response.ok) {
         const userData = await response.json();
-        return userData.exists; // Return true if user exists
-      } else {
-        return false; // Return false if user doesn't exist
+        console.log("User data fetched:", userData); // Log user data
+        const user = userData.find((user) => user.email === email);
+        if (user) {
+          console.log("User found:", user); // Log found user
+          return { exists: true, passwordMatch: user.password === password };
+        }
+        return { exists: false, passwordMatch: false };
       }
+      return { exists: false, passwordMatch: false };
     } catch (error) {
       console.error("Error checking credentials:", error);
-      return false;
+      return { exists: false, passwordMatch: false };
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const userExists = await checkCredentials();
+    setLoading(true); // Set loading to true
 
     if (isLogin) {
-      if (userExists) {
+      console.log("Attempting login..."); // Log login attempt
+      const { exists, passwordMatch } = await checkCredentials();
+      console.log("Credentials check result:", { exists, passwordMatch }); // Log results
+
+      if (exists && passwordMatch) {
+        console.log("Login successful for:", email); // Log successful login
+        settok(email); // Update context
         setMessageType("success");
         setMessage("Login successful, redirecting...");
-        setTimeout(() => navigate("/home"), 1500); // Delay navigation for a better user experience
+        setTimeout(() => navigate("/home"), 1500);
       } else {
         setMessageType("error");
-        setMessage("User not found, please sign up.");
-        setIsLogin(false); // Automatically switch to signup
+        setMessage(
+          exists ? "Incorrect password." : "Email not found. Please sign up."
+        );
+        if (!exists) setIsLogin(false);
       }
     } else {
-      // Signup process
+      console.log("Attempting signup..."); // Log signup attempt
       try {
         const response = await fetch("http://localhost:5000/api/userr", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, password, securityQuestion }),
         });
-
         if (response.ok) {
+          console.log("Signup successful for:", email); // Log successful signup
           setMessageType("success");
           setMessage("Signup successful, redirecting...");
           setTimeout(() => navigate("/home"), 1500);
@@ -96,6 +123,7 @@ const Login = () => {
           const errorData = await response.json();
           setMessageType("error");
           setMessage(`Signup failed: ${errorData.message}`);
+          console.log("Signup error:", errorData.message); // Log signup error
         }
       } catch (error) {
         setMessageType("error");
@@ -103,7 +131,18 @@ const Login = () => {
         console.error("Error during signup:", error);
       }
     }
+    setLoading(false); // Reset loading
   };
+
+  useEffect(() => {
+    return () => {
+      setEmail("");
+      setPassword("");
+      setSecurityQuestion("");
+      setMessage("");
+      setMessageType("info");
+    };
+  }, [isLogin]);
 
   return (
     <Container style={styles.root}>
@@ -112,12 +151,11 @@ const Login = () => {
           <Button onClick={() => setIsLogin(true)}>Login</Button>
           <Button onClick={() => setIsLogin(false)}>Signup</Button>
         </Box>
-        
+
         <Typography variant="h4" align="center" gutterBottom>
           {isLogin ? "Login" : "Signup"}
         </Typography>
 
-        {/* Conditionally render the message */}
         {message && (
           <Alert severity={messageType} style={{ marginBottom: "16px" }}>
             {message}
@@ -125,18 +163,17 @@ const Login = () => {
         )}
 
         <TextField
-          label="Email"
           variant="outlined"
           fullWidth
           required
           margin="normal"
           name="email"
           value={email}
+          placeholder="enter Email"
           onChange={handleChange}
         />
 
         <TextField
-          label="Password"
           variant="outlined"
           fullWidth
           required
@@ -145,6 +182,7 @@ const Login = () => {
           type={showPassword ? "text" : "password"}
           value={password}
           onChange={handleChange}
+          placeholder="enter Password"
           InputProps={{
             endAdornment: (
               <InputAdornment position="end">
@@ -175,13 +213,14 @@ const Login = () => {
           color="primary"
           fullWidth
           style={styles.button}
+          disabled={loading}
         >
-          {isLogin ? "Login" : "Signup"}
+          {loading ? "Loading..." : isLogin ? "Login" : "Signup"}
         </Button>
+
       </Box>
     </Container>
   );
 };
 
 export default Login;
-

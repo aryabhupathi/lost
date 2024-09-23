@@ -29,6 +29,9 @@ router.post('/', async (req, res) => {
     const savedLogin = await newLogin.save();
     res.status(201).json(savedLogin);
   } catch (err) {
+    if (err.code === 11000) { // Duplicate email error
+      return res.status(400).json({ message: 'Email must be unique.' });
+    }
     console.error('Error saving login:', err);
     res.status(500).json({ message: `Error saving login: ${err.message}` });
   }
