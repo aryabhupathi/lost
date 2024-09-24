@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Button, Modal, Box, Pagination } from "@mui/material";
+import { Button, Modal, Box, Pagination, CardMedia, Card } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
@@ -13,6 +13,7 @@ import { useAuth } from "../App"; // Import the useAuth hook
 import AddForm from "../Components/AddForm";
 import DisplayCard from "../Components/DisplayCard";
 import Grid from "@mui/material/Grid2";
+import style1 from "../Sstyle/Modal1";
 
 const Product = () => {
   const [data, setData] = useState([]);
@@ -218,57 +219,65 @@ const Product = () => {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          height:'200px',
-          top:'25%'
         }}
       >
-        <Box
-          sx={{
-            width: 400,
-            bgcolor: "background.paper",
-            boxShadow: 24,
-            p: 4,
-            outline: "none",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-          }}
-        >
-          <Box sx={{ position: "relative", width: "100%", height: "auto" }}>
-            <Button
-              onClick={handlePrevImage}
-              disabled={currentImageIndex === 0}
-              sx={{
-                position: "absolute",
-                left: -40,
-                top: "50%",
-                transform: "translateY(-50%)",
-              }}
-            >
-              <ArrowBackIcon />
-            </Button>
-            <img
-              src={selectedImage}
-              alt="Selected"
-              style={{ width: "100%", height: "auto", marginBottom: 16 }}
-            />
-            <Button
-              onClick={handleNextImage}
-              sx={{
-                position: "absolute",
-                right: -40,
-                top: "50%",
-                transform: "translateY(-50%)",
-              }}
-            >
-              <ArrowForwardIcon />
-            </Button>
+        <Box sx={style1}>
+          <Box
+            sx={{
+              position: "relative",
+              display: "flex",
+              justifyContent: "center",
+            }}
+          >
+            {/* <Card sx = {{width:'200px', height:'200px', border:'3px solid red', objectFit:'contain'}}> */}
+            <Card>
+              <Button
+                onClick={handlePrevImage}
+                disabled={currentImageIndex === 0}
+                sx={{
+                  position: "absolute",
+                  left: -40,
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                }}
+              >
+                <ArrowBackIcon />
+              </Button>
+              <CardMedia
+                component="img"
+                alt="green iguana"
+                image={selectedImage}
+                sx={{ height: "300px", width: "500px", objectFit: "contain" }}
+              />
+              <Button
+                onClick={handleNextImage}
+                sx={{
+                  position: "absolute",
+                  right: -40,
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                }}
+                disabled={
+                  data.find((product) => product._id === selectedVenueId)
+                    ?.images.length ===
+                  currentImageIndex + 1
+                }
+              >
+                <ArrowForwardIcon />
+              </Button>
+            </Card>
           </Box>
           <Box sx={{ display: "flex", justifyContent: "center" }}>
             <Button
               onClick={() => handleButtonClick("like")}
               color="primary"
-              startIcon={liked ? <ThumbUpIcon sx={{color:'green'}}/> : <ThumbUpOutlinedIcon sx={{color:'green'}}/>}
+              startIcon={
+                liked ? (
+                  <ThumbUpIcon sx={{ color: "green" }} />
+                ) : (
+                  <ThumbUpOutlinedIcon sx={{ color: "green" }} />
+                )
+              }
             >
               {currentImageLikes}
             </Button>
@@ -276,7 +285,11 @@ const Product = () => {
               onClick={() => handleButtonClick("dislike")}
               color="primary"
               startIcon={
-                disliked ? <ThumbDownIcon sx={{color:'yellow'}}/> : <ThumbDownAltOutlinedIcon sx={{color:'yellow'}}/>
+                disliked ? (
+                  <ThumbDownIcon sx={{ color: "yellow" }} />
+                ) : (
+                  <ThumbDownAltOutlinedIcon sx={{ color: "yellow" }} />
+                )
               }
             >
               {currentImageDislikes}
@@ -285,7 +298,11 @@ const Product = () => {
               onClick={() => handleButtonClick("love")}
               color="primary"
               startIcon={
-                loved ? <FavoriteIcon sx={{color:'red'}}/> : <FavoriteBorderOutlinedIcon sx={{color:'red'}}/>
+                loved ? (
+                  <FavoriteIcon sx={{ color: "red" }} />
+                ) : (
+                  <FavoriteBorderOutlinedIcon sx={{ color: "red" }} />
+                )
               }
             >
               {currentImageLoves}

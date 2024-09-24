@@ -234,5 +234,51 @@ router.put('/:venueId/images', async (req, res) => {
   }
 });
 
+// POST request to update like, dislike, or love count for an image
+router.post('/api/venue/:venueId/events/:eventId/images/:imageId', async (req, res) => {
+  const { venueId, eventId, imageId } = req.params;
+  const { action } = req.body; // action can be 'like', 'dislike', or 'love'
+
+  try {
+    // Find the venue by venueId
+    const venue = await Venue.findById(venueId);
+    if (!venue) {
+      return res.status(404).json({ message: 'Venue not found' });
+    }
+
+    // Find the event by eventId
+    const event = venue.events.id(eventId);
+    if (!event) {
+      return res.status(404).json({ message: 'Event not found' });
+    }
+
+    // Find the specific image by imageId
+    const image = event.eventImages.id(imageId);
+    if (!image) {
+      return res.status(404).json({ message: 'Image not found' });
+    }
+
+    // Increment the appropriate count based on the action
+    if (action === 'like') {
+      image.like += 1;
+    } else if (action === 'dislike') {
+      image.dislike += 1;
+    } else if (action === 'love') {
+      image.love += 1;
+    } else {
+      return res.status(400).json({ message: 'Invalid action' });
+    }
+
+    // Save the updated venue
+    await venue.save();
+
+    res.status(200).json({ message: `${action} count updated successfully`, image });
+  } catch (error) {
+    console.error('Error updating count:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+
 module.exports = router;
 
