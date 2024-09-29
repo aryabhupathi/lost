@@ -11,9 +11,12 @@ import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 import { Link } from "react-router-dom";
+import MenuIcon from '@mui/icons-material/Menu';
+import Face2Icon from '@mui/icons-material/Face2';
+import FlutterDashIcon from '@mui/icons-material/FlutterDash';
 
 const pages = ["Home", "About", "Product"];
-const settings = ["Profile", "Account", "Dashboard", "Logout"];
+const settings = ["UserName", "Forgot", 'Role'];
 
 function Navbar() {
   const [anchorElNav, setAnchorElNav] = React.useState(null);
@@ -35,8 +38,8 @@ function Navbar() {
   };
 
   return (
-    <AppBar position="static">
-      <Container maxWidth="xl">
+    <AppBar position="static" sx={{backgroundColor:'pink'}}>
+      <Container >
         <Toolbar disableGutters>
           <Typography
             variant="h6"
@@ -49,12 +52,13 @@ function Navbar() {
               fontFamily: "monospace",
               fontWeight: 700,
               letterSpacing: ".3rem",
-              color: "inherit",
+              color: "red",
               textDecoration: "none",
             }}
           >
             LOGO
           </Typography>
+          <Face2Icon sx={{color:'red', padding:'3px'}}/><FlutterDashIcon sx={{color:'red'}}/>
 
           <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
             <IconButton
@@ -65,7 +69,7 @@ function Navbar() {
               onClick={handleOpenNavMenu}
               color="inherit"
             >
-              {/* <MenuIcon /> */}
+              <MenuIcon sx={{color:'red'}}/>
             </IconButton>
             <Menu
               id="menu-appbar"
@@ -85,7 +89,9 @@ function Navbar() {
             >
               {pages.map((page) => (
                 <MenuItem key={page} onClick={handleCloseNavMenu}>
-                  <Typography sx={{ textAlign: "center" }}>{page}</Typography>
+               <Link to={`/${page.toLowerCase()}`} style={{ textDecoration: "none", color: "red" }}>
+                      {page}
+                    </Link>
                 </MenuItem>
               ))}
             </Menu>
@@ -102,7 +108,7 @@ function Navbar() {
               fontFamily: "monospace",
               fontWeight: 700,
               letterSpacing: ".3rem",
-              color: "inherit",
+              color: "red",
               textDecoration: "none",
             }}
           >
@@ -122,7 +128,7 @@ function Navbar() {
                 onClick={handleCloseNavMenu}
                 sx={{ my: 2, color: "white", display: "block" }}
               >
-               <Link to={`/${page.toLowerCase()}`} style={{ textDecoration: "none", color: "inherit" }}>
+               <Link to={`/${page.toLowerCase()}`} style={{ textDecoration: "none", color: "red" }}>
                       {page}
                     </Link>
               </Button>
@@ -155,6 +161,15 @@ function Navbar() {
                   <Typography sx={{ textAlign: "center" }}>
                     {setting}
                   </Typography>
+                  <Button
+                key={setting}
+                onClick={handleCloseNavMenu}
+                sx={{ my: 2, color: "white", display: "block" }}
+              >
+               <Link to={`/${setting.toLowerCase()}`} style={{ textDecoration: "none", color: "red" }}>
+                      {setting}
+                    </Link>
+              </Button>
                 </MenuItem>
               ))}
             </Menu>

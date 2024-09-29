@@ -59,7 +59,7 @@ const About = () => {
           Our Team
         </Typography>
         <Grid container spacing={4}>
-          <Grid item size={{xs:12, sm:4}}>
+          <Grid item size={{xs:6, sm:4}}>
             <Avatar
               alt="Team Member 1"
               src="/images/member1.jpg"
@@ -68,7 +68,7 @@ const About = () => {
             <Typography variant="h6">John Doe</Typography>
             <Typography variant="body2">CEO & Founder</Typography>
           </Grid>
-          <Grid item size={{xs:12, sm:4}}>
+          <Grid item size={{xs:6, sm:4}}>
             <Avatar
               alt="Team Member 2"
               src="/images/member2.jpg"
@@ -77,7 +77,7 @@ const About = () => {
             <Typography variant="h6">Jane Smith</Typography>
             <Typography variant="body2">CTO</Typography>
           </Grid>
-          <Grid item size={{xs:12, sm:4}}>
+          <Grid item size={{xs:6, sm:4}}>
             <Avatar
               alt="Team Member 3"
               src="/images/member3.jpg"

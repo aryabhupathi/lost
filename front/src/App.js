@@ -40,7 +40,7 @@ import Product from './Product/Product';
 import About from './About/About';
 import Login from './Login/Login';
 import Learn from './Learn/Learn';
-
+import Forgot from './Components/Forgot';
 const AuthContext = createContext();
 export const useAuth = () => useContext(AuthContext);
 
@@ -56,6 +56,7 @@ const App = () => {
         <Route path="/product" element={<Product />} />
         <Route path="/product/:id" element={<Learn />} />
         <Route path="/about" element={<About />} />
+        <Route path="/forgot" element={<Forgot />} />
       </Routes>
     </AuthContext.Provider>
   );

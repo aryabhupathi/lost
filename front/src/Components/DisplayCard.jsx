@@ -9,6 +9,7 @@ import {
 } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import Filternames from "./Filternames";
+
 const DisplayCard = ({ currentItems, handleImageClick, handleViewMore }) => {
   const [filters, setFilters] = useState({
     community: [],
@@ -62,28 +63,32 @@ const DisplayCard = ({ currentItems, handleImageClick, handleViewMore }) => {
   return (
     <Grid container spacing={3}>
       <Grid
-  item
-  size={{xs:'12',sm:'3'}} // Correct the typo "sise" to "xs"
-  sx={{ 
-    borderRight: "3px solid red", 
-    paddingRight: 2, 
-    marginBottom: 2, 
-    display: 'flex', 
-    flexDirection: 'column', 
-  }}
->
-  <Typography variant="h6" align="center">Filter</Typography> {/* Use align="center" to center text */}
-  <Filternames onFilterChange={handleFilterChange} />
-</Grid>
+        item
+        size={{ xs: 12, md: 3 }}
+        xs={12}
+        md={3}
+        sx={{
+          borderRight: { xs: "none", md: "3px solid red" },
+          paddingRight: { xs: 0, md: 2 },
+          marginBottom: 2,
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
+        <Typography variant="h6" align="center">
+          Filter
+        </Typography>
+        <Filternames onFilterChange={handleFilterChange} />
+      </Grid>
 
-      <Grid item size={{ xs: 12, sm: 9 }}>
-        <Grid container spacing={3}>
+      <Grid item size={{ xs: 12, md: 9 }}>
+        <Grid container spacing={4}  sx = {{display:'flex', justifyContent:'center'}}>
           {filteredItems.map((product) => (
-            <Grid item size={{ xs: 12, sm: 4 }} key={product.id}>
+            <Grid item size={{ xs: 12, sm: 6, md: 6, lg: 4 }} key={product.id}>
               <Card
                 sx={{
                   height: "350px",
-                  width: "200px",
+                  width: "250px",
                   display: "flex",
                   flexDirection: "column",
                 }}

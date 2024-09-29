@@ -37,4 +37,32 @@ router.post('/', async (req, res) => {
   }
 });
 
+// POST route to reset the password
+router.post('/reset-password', async (req, res) => {
+  const { email, newPassword } = req.body;
+
+  try {
+    // Step 1: Find the user by email
+    const user = await Login.findOne({ email });
+    console.log(user, 'iuuuuuuuuuuuuuu')
+    if (!user) {
+      // If user does not exist
+      return res.status(404).json({ message: 'User not found with this email.' });
+    }
+
+    // Step 3: Update the password
+    user.password = newPassword;
+
+    // Save the updated user with the new password
+    await user.save();
+
+    // Step 4: Respond with success
+    res.status(200).json({ message: 'Password reset successfully.' });
+
+  } catch (err) {
+    // Handle any errors
+    res.status(500).json({ message: `Error resetting password: ${err.message}` });
+  }
+});
+
 module.exports = router;

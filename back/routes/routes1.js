@@ -235,7 +235,7 @@ router.put('/:venueId/images', async (req, res) => {
 });
 
 // POST request to update like, dislike, or love count for an image
-router.post('/api/venue/:venueId/events/:eventId/images/:imageId', async (req, res) => {
+router.post('/api/venue/:venueId/:eventId/:imageId', async (req, res) => {
   const { venueId, eventId, imageId } = req.params;
   const { action } = req.body; // action can be 'like', 'dislike', or 'love'
 
@@ -257,7 +257,7 @@ router.post('/api/venue/:venueId/events/:eventId/images/:imageId', async (req, r
     if (!image) {
       return res.status(404).json({ message: 'Image not found' });
     }
-
+console.log(venue, event, image, 'evievievi')
     // Increment the appropriate count based on the action
     if (action === 'like') {
       image.like += 1;
