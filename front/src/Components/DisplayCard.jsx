@@ -82,7 +82,11 @@ const DisplayCard = ({ currentItems, handleImageClick, handleViewMore }) => {
       </Grid>
 
       <Grid item size={{ xs: 12, md: 9 }}>
-        <Grid container spacing={4}  sx = {{display:'flex', justifyContent:'center'}}>
+        <Grid
+          container
+          spacing={4}
+          sx={{ display: "flex", justifyContent: "center" }}
+        >
           {filteredItems.map((product) => (
             <Grid item size={{ xs: 12, sm: 6, md: 6, lg: 4 }} key={product.id}>
               <Card

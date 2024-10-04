@@ -41,6 +41,7 @@ import About from './About/About';
 import Login from './Login/Login';
 import Learn from './Learn/Learn';
 import Forgot from './Components/Forgot';
+import Event from './Event/Event';
 const AuthContext = createContext();
 export const useAuth = () => useContext(AuthContext);
 
@@ -53,10 +54,12 @@ const App = () => {
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/home" element={<Home />} />
-        <Route path="/product" element={<Product />} />
-        <Route path="/product/:id" element={<Learn />} />
+        <Route path="/venue" element={<Product />} />
+        <Route path="/venue/:id" element={<Learn />} />
         <Route path="/about" element={<About />} />
         <Route path="/forgot" element={<Forgot />} />
+        <Route path="/event/:id" element={<Event />} />
+   
       </Routes>
     </AuthContext.Provider>
   );

@@ -9,7 +9,6 @@ import ThumbDownIcon from "@mui/icons-material/ThumbDown";
 import ThumbDownAltOutlinedIcon from "@mui/icons-material/ThumbDownAltOutlined";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import FavoriteBorderOutlinedIcon from "@mui/icons-material/FavoriteBorderOutlined";
-import { useAuth } from "../App"; // Import the useAuth hook
 import AddForm from "../Components/AddForm";
 import DisplayCard from "../Components/DisplayCard";
 import Grid from "@mui/material/Grid2";
@@ -30,7 +29,6 @@ const Product = () => {
   const [currentImageDislikes, setCurrentImageDislikes] = useState(0);
   const [currentImageLoves, setCurrentImageLoves] = useState(0);
   const itemsPerPage = 12;
-  const { tok } = useAuth(); // Get email from AuthContext
 
   useEffect(() => {
     const fetchData = async () => {
@@ -43,7 +41,7 @@ const Product = () => {
 
   const navigate = useNavigate();
 
-  const handleViewMore = (id) => navigate(`/product/${id}`);
+  const handleViewMore = (id) => navigate(`/venue/${id}`);
 
   const handleImageClick = (imageUrl, index, venueId) => {
     setSelectedImage(imageUrl);
@@ -162,7 +160,7 @@ const Product = () => {
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = data.slice(indexOfFirstItem, indexOfLastItem);
 
-  const handlePageChange = (event, value) => {
+  const handlePageChange = (value) => {
     setCurrentPage(value);
   };
 
@@ -172,34 +170,38 @@ const Product = () => {
         <AddForm />
       ) : (
         <>
-          {tok === "1234" && ( // Conditionally render the "ADD NEW" button
-            <Grid
-              item
-              xs={12}
-              sx={{
-                display: "flex",
-                justifyContent: "flex-end",
-                marginBottom: 2,
-              }}
+          <Grid
+            item
+            xs={12}
+            sx={{
+              display: "flex",
+              justifyContent: "flex-end",
+              marginBottom: 2,
+            }}
+          >
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => setShowAdd(true)}
             >
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={() => setShowAdd(true)}
-              >
-                ADD NEW
-              </Button>
+              ADD NEW
+            </Button>
+          </Grid>
+          {data.length > 0 ? (
+            <DisplayCard
+              currentItems={currentItems}
+              handleImageClick={handleImageClick}
+              currentPage={currentPage}
+              handlePageChange={handlePageChange}
+              itemsPerPage={itemsPerPage}
+              handleViewMore={handleViewMore}
+              totalItems={data.length}
+            />
+          ) : (
+            <Grid item xs={12} display="flex" justifyContent="center">
+              <p>No products available. Add new items to get started!</p>
             </Grid>
           )}
-          <DisplayCard
-            currentItems={currentItems}
-            handleImageClick={handleImageClick}
-            handleViewMore={handleViewMore}
-            currentPage={currentPage}
-            handlePageChange={handlePageChange}
-            itemsPerPage={itemsPerPage}
-            totalItems={data.length}
-          />
           <Grid xs={12} display={"flex"} justifyContent={"center"}>
             <Pagination
               count={Math.ceil(data.length / itemsPerPage)}
@@ -207,6 +209,7 @@ const Product = () => {
               onChange={handlePageChange}
               color="primary"
               sx={{ mt: 3 }}
+              disabled={data.length === 0}
             />
           </Grid>
         </>
@@ -229,43 +232,46 @@ const Product = () => {
               justifyContent: "center",
             }}
           >
-            {/* <Card sx = {{width:'200px', height:'200px', border:'3px solid red', objectFit:'contain'}}> */}
-            <Card>
-              <Button
-                onClick={handlePrevImage}
-                disabled={currentImageIndex === 0}
-                sx={{
-                  position: "absolute",
-                  left: -40,
-                  top: "50%",
-                  transform: "translateY(-50%)",
-                }}
-              >
-                <ArrowBackIcon />
-              </Button>
-              <CardMedia
-                component="img"
-                alt="green iguana"
-                image={selectedImage}
-                sx={{ height: "300px", width: "500px", objectFit: "contain" }}
-              />
-              <Button
-                onClick={handleNextImage}
-                sx={{
-                  position: "absolute",
-                  right: -40,
-                  top: "50%",
-                  transform: "translateY(-50%)",
-                }}
-                disabled={
-                  data.find((product) => product._id === selectedVenueId)
-                    ?.images.length ===
-                  currentImageIndex + 1
-                }
-              >
-                <ArrowForwardIcon />
-              </Button>
-            </Card>
+            {selectedImage ? (
+              <Card>
+                <Button
+                  onClick={handlePrevImage}
+                  disabled={currentImageIndex === 0}
+                  sx={{
+                    position: "absolute",
+                    left: -40,
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                  }}
+                >
+                  <ArrowBackIcon />
+                </Button>
+                <CardMedia
+                  component="img"
+                  alt="green iguana"
+                  image={selectedImage}
+                  sx={{ height: "300px", width: "500px", objectFit: "contain" }}
+                />
+                <Button
+                  onClick={handleNextImage}
+                  sx={{
+                    position: "absolute",
+                    right: -40,
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                  }}
+                  disabled={
+                    data.find((product) => product._id === selectedVenueId)
+                      ?.images.length ===
+                    currentImageIndex + 1
+                  }
+                >
+                  <ArrowForwardIcon />
+                </Button>
+              </Card>
+            ) : (
+              <p>No image available</p>
+            )}
           </Box>
           <Box sx={{ display: "flex", justifyContent: "center" }}>
             <Button
