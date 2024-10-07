@@ -91,35 +91,41 @@ const Product = () => {
   };
 
   const handleButtonClick = (buttonType) => {
-    let newLikeCount = currentImageLikes;
-    let newDislikeCount = currentImageDislikes;
-    let newLoveCount = currentImageLoves;
+    let newLikeCount, newDislikeCount, newLoveCount;
 
     if (buttonType === "like") {
-      newLikeCount = liked ? currentImageLikes - 1 : currentImageLikes + 1;
+      newLikeCount = liked ? -1 : 1; // Send only 1 or -1 for likes
       setLiked((prev) => !prev);
-      if (disliked) setDisliked(false);
-      setCurrentImageLikes(newLikeCount);
+      if (disliked) setDisliked(false); // reset dislike if like is toggled
+      updateImageCounts(
+        selectedVenueId,
+        selectedImage,
+        newLikeCount,
+        undefined,
+        undefined
+      );
     } else if (buttonType === "dislike") {
-      newDislikeCount = disliked
-        ? currentImageDislikes - 1
-        : currentImageDislikes + 1;
+      newDislikeCount = disliked ? -1 : 1; // Send only 1 or -1 for dislikes
       setDisliked((prev) => !prev);
-      if (liked) setLiked(false);
-      setCurrentImageDislikes(newDislikeCount);
+      if (liked) setLiked(false); // reset like if dislike is toggled
+      updateImageCounts(
+        selectedVenueId,
+        selectedImage,
+        undefined,
+        newDislikeCount,
+        undefined
+      );
     } else if (buttonType === "love") {
-      newLoveCount = loved ? currentImageLoves - 1 : currentImageLoves + 1;
+      newLoveCount = loved ? -1 : 1; // Send only 1 or -1 for love
       setLoved((prev) => !prev);
-      setCurrentImageLoves(newLoveCount);
+      updateImageCounts(
+        selectedVenueId,
+        selectedImage,
+        undefined,
+        undefined,
+        newLoveCount
+      );
     }
-
-    updateImageCounts(
-      selectedVenueId,
-      selectedImage,
-      newLikeCount,
-      newDislikeCount,
-      newLoveCount
-    );
   };
 
   const handleNextImage = () => {

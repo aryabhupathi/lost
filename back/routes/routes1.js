@@ -19,7 +19,6 @@ router.get("/", async (req, res) => {
 router.get("/event", async (req, res) => {
   try {
     const events = await Event.find();
-    console.log("Fetched Events:", events); // Log the fetched events
     if (events.length === 0) {
       return res.status(404).json({ message: "No events found." });
     }
@@ -43,15 +42,15 @@ router.get("/:id", async (req, res) => {
 });
 
 // GET a specific event by ID (distinct route for event)
-router.get("/event/:id", async (req, res) => {
+router.get("/event/:eventIds", async (req, res) => {
+  const eventIds = req.params.eventIds.split(",").map((id) => id.trim());
+
   try {
-    const event = await Event.findById(req.params.id);
-    if (!event) {
-      return res.status(404).json({ message: "Event not found." });
-    }
-    res.json(event);
-  } catch (err) {
-    res.status(500).json({ message: "Error fetching event: " + err.message });
+    const events = await Event.find({ _id: { $in: eventIds } });
+    res.status(200).json(events);
+  } catch (error) {
+    console.error("Error fetching events:", error);
+    res.status(500).json({ message: "Error fetching events" });
   }
 });
 
@@ -70,67 +69,88 @@ router.post("/", async (req, res) => {
 // POST route for creating an event and updating the corresponding venue
 router.post("/event", async (req, res) => {
   try {
-    const eventData = req.body; // Expecting { name, description, date, images, category, venueId }
+    const eventData = req.body;
 
-    // Create the new event
     const newEvent = new Event(eventData);
     const savedEvent = await newEvent.save();
 
-    // Update the corresponding Venue with the new event ID
     await Venue.findByIdAndUpdate(eventData.venueId, {
-      $push: { eventIds: savedEvent._id }, // Push the new event ID to the eventIds array
+      $push: { eventIds: savedEvent._id },
     });
 
-    res.status(201).json(savedEvent); // Return the created event
+    res.status(201).json(savedEvent);
   } catch (error) {
     console.error("Error saving event:", error);
     res.status(500).json({ message: "Server error, unable to save event" });
   }
 });
 
-// PATCH route for updating a venue
-router.patch("/:id", async (req, res) => {
-  try {
-    const updatedVenue = await Venue.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      {
-        new: true, // Return the updated document
-        runValidators: true, // Run validation on update
-      }
-    );
+router.put("/:id/images", async (req, res) => {
+  const { imageUrl, like, dislike, love } = req.body;
 
-    if (!updatedVenue) {
-      return res.status(404).json({ message: "Venue not found." });
+  try {
+    const venue = await Venue.findById(req.params.id);
+
+    if (!venue) {
+      return res.status(404).json({ message: "Venue not found" });
     }
 
-    res.json(updatedVenue);
+    const image = venue.images.find((img) => img.imageUrl === imageUrl);
+
+    if (!image) {
+      return res.status(404).json({ message: "Image not found" });
+    }
+
+    // Only increment the count for the button that was clicked
+   
+    if (like !== undefined) image.like += like;
+    if (dislike !== undefined) image.dislike += dislike;
+    if (love !== undefined) image.love += love;
+    const updatedVenue = await venue.save();
+
+    res.status(200).json({ message: "Image updated successfully", image });
   } catch (error) {
-    console.error("Error updating venue:", error);
-    res.status(500).json({ message: "Error updating venue" });
+    console.error("Error updating image counts:", error);
+    res.status(500).json({ message: "Error updating image counts" });
   }
 });
 
-// PATCH route for updating an event
-router.patch("/event/:id", async (req, res) => {
-  try {
-    const updatedEvent = await Event.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      {
-        new: true, // Return the updated document
-        runValidators: true, // Run validation on update
-      }
-    );
+router.put("/event/:venueId/images/:imageId", async (req, res) => {
+  const { venueId, imageId } = req.params;
+  const { like, dislike, love } = req.body;
 
-    if (!updatedEvent) {
-      return res.status(404).json({ message: "Event not found." });
+  try {
+    // Find the event by venueId
+    const event = await Event.findOne({ venueId: venueId });
+
+    if (!event) {
+      return res
+        .status(404)
+        .json({ message: "Event not found for the provided venueId" });
     }
 
-    res.json(updatedEvent);
+    // Locate the specific image in the images array
+    const image = event.images.find(img => img._id.toString() === imageId);
+console.log(image, 'klklklklklklklklklklklklkl');
+    if (!image) {
+      return res
+        .status(404)
+        .json({ message: "Image not found in the event's images" });
+    }
+
+    // Update image counts
+    if (like !== undefined) image.like += like;
+    if (dislike !== undefined) image.dislike += dislike;
+    if (love !== undefined) image.love += love;
+
+    await event.save();
+
+    res
+      .status(200)
+      .json({ message: "Image counts updated successfully", image });
   } catch (error) {
-    console.error("Error updating event:", error);
-    res.status(500).json({ message: "Error updating event" });
+    console.error("Error updating image counts:", error);
+    res.status(500).json({ message: "Error updating image counts", error });
   }
 });
 

@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   Container,
   Typography,
@@ -9,12 +9,9 @@ import {
   Box,
   Modal,
   Button,
-} from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
-import ThumbUpIcon from '@mui/icons-material/ThumbUp';
-import ThumbDownIcon from '@mui/icons-material/ThumbDown';
-import FavoriteIcon from '@mui/icons-material/Favorite';
-
+} from "@mui/material";
+import style1 from "../Sstyle/Modal1";
+import EventLike from "../Components/EventLike";
 const Learn = () => {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
@@ -30,8 +27,8 @@ const Learn = () => {
     imageId: "",
   });
   const [showAllImages, setShowAllImages] = useState(false);
-
-  const handleImageModal = (image) => {
+  const navigate = useNavigate();
+  const handleImageModal = (image, eventId) => {
     setMainImageModal({
       imageId: image._id,
       open: true,
@@ -39,8 +36,10 @@ const Learn = () => {
       likes: image.like,
       dislikes: image.dislike,
       loves: image.love,
+      eventId: eventId,  // Store the event ID
     });
   };
+  
 
   const handleCloseMainImageModal = () => {
     setMainImageModal({
@@ -58,7 +57,6 @@ const Learn = () => {
       try {
         const response = await fetch(`http://localhost:5000/api/venue/${id}`);
         const data = await response.json();
-        console.log("Fetched product data:", data); // Log the product data
         setProduct(data);
 
         // Set current image if images exist
@@ -78,84 +76,42 @@ const Learn = () => {
     fetchProduct();
   }, [id]);
 
-  // useEffect(() => {
-  //   const fetchEvent = async () => {
-  //     if (eventIds.length === 0) return; // Exit if no event IDs
+  useEffect(() => {
+    const fetchEvent = async () => {
+      if (eventIds.length === 0) return; // Exit if no event IDs
 
-  //     setLoadingEvents(true); // Start loading
-  //     try {
-  //       const response = await fetch(`http://localhost:5000/api/venue/event/${eventIds}`);
-  //       const data = await response.json();
-  //       console.log("Fetched events data:", data); // Log the fetched events data
-  //       setEvents(data);
-  //     } catch (error) {
-  //       console.error("Error fetching events:", error);
-  //     } finally {
-  //       setLoadingEvents(false); // Stop loading
-  //     }
-  //   };
+      try {
+        const response = await fetch(
+          `http://localhost:5000/api/venue/event/${eventIds.join(",")}`
+        );
+        const data = await response.json();
 
-  //   fetchEvent();
-  // }, [eventIds]); // Dependency on eventIds
+        // Wrap the data in an array if it's a single object
+        const eventsToSet = Array.isArray(data) ? data : [data];
 
-  // Fetch Event data
-useEffect(() => {
-  const fetchEvent = async () => {
-    if (eventIds.length === 0) return; // Exit if no event IDs
+        setEvents(eventsToSet); // Set events
+        console.log("Events set successfully:", eventsToSet); // Log the successfully set events
+      } catch (error) {
+        console.error("Error fetching events:", error);
+      }
+    };
 
-    try {
-      const response = await fetch(`http://localhost:5000/api/venue/event/${eventIds}`);
-      const data = await response.json();
-      console.log("Fetched events data:", data); // Log the fetched events data
-
-      // Wrap the data in an array if it's a single object
-      const eventsToSet = Array.isArray(data) ? data : [data];
-
-      setEvents(eventsToSet); // Set events
-      console.log("Events set successfully:", eventsToSet); // Log the successfully set events
-    } catch (error) {
-      console.error("Error fetching events:", error);
-    }
-  };
-
-  fetchEvent();
-}, [eventIds]); 
+    fetchEvent();
+  }, [eventIds]);
 
   if (!product) {
     return <Typography>Loading...</Typography>;
   }
-
-  const updateImageCounts = async (venueId, imageUrl, like, dislike, love) => {
-    const url = `http://localhost:5000/api/venue/${venueId}/images`;
-    const data = { imageUrl, like, dislike, love };
-
-    try {
-      const response = await fetch(url, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        const errorMessage = await response.json();
-        console.error("Error updating image counts:", errorMessage);
-      } else {
-        const updatedVenue = await response.json();
-        console.log("Image counts updated successfully:", updatedVenue);
-      }
-    } catch (err) {
-      console.error("Error making PUT request:", err.message);
-    }
-  };
-
   return (
     <Container maxWidth="lg" sx={{ marginTop: 4 }}>
-      <Typography variant="h5" align="center" gutterBottom>
-        {product.name}
-      </Typography>
-      <Typography variant="h6" align="center" gutterBottom>
-        {product.address}
-      </Typography>
+      <Box>
+        <Typography variant="h5" align="center" gutterBottom>
+          {product.name}
+        </Typography>
+        <Typography variant="h6" align="center" gutterBottom>
+          {product.address}
+        </Typography>
+      </Box>
 
       <Grid container spacing={4}>
         <Grid item xs={12} sm={6}>
@@ -248,84 +204,32 @@ useEffect(() => {
       </Grid>
       <hr />
 
-      {/* <Box sx={{ marginTop: 4 }}>
+      <Box sx={{ marginTop: 4 }}>
         <Typography variant="h4" gutterBottom>
           Events
         </Typography>
-        {loadingEvents ? (
-          <Typography>Loading events...</Typography>
-        ) : events.length > 0 ? (
-          events.map((event, index) => (
-            <Box key={index} sx={{ marginBottom: 4 }}>
-              <Typography variant="h5" gutterBottom>
-                {event.eventName}
-              </Typography>
-              <Typography variant="body1">{event.eventDescription}</Typography>
-              <Typography variant="body2" color="textSecondary">
-                Event Date: {event.eventDate}
-              </Typography>
 
-              <Grid container spacing={4}>
-                {event.eventImages && event.eventImages.length > 0 ? (
-                  event.eventImages
-                    .slice(0, showAllImages ? event.eventImages.length : 5)
-                    .map((image, imgIndex) => (
-                      <Grid item xs={12} sm={4} mt={3} key={imgIndex}>
-                        <Card sx={{ height: "250px" }}>
-                          <CardMedia
-                            component="img"
-                            image={image.imageUrl}
-                            alt={`Event Image ${imgIndex + 1}`}
-                            sx={{
-                              height: "100%",
-                              width: "100%",
-                              cursor: "pointer",
-                              objectFit: "contain",
-                            }}
-                            onClick={() => handleImageModal(image)}
-                          />
-                        </Card>
-                      </Grid>
-                    ))
-                ) : (
-                  <Typography variant="body1" sx={{ mt: 2 }}>
-                    No images available for this event.
-                  </Typography>
-                )}
-                {event.eventImages && event.eventImages.length > 5 && (
-                  <Button
-                    color="primary"
-                    onClick={() => setShowAllImages(!showAllImages)}
-                  >
-                    {showAllImages ? "View Less" : "View More"}
-                  </Button>
-                )}
-              </Grid>
-            </Box>
-          ))
-        ) : (
-          <Typography variant="body1">No events available</Typography>
-        )}
-      </Box> */}
 
-<Box sx={{ marginTop: 4 }}>
-  <Typography variant="h4" gutterBottom>
-    Events
-  </Typography>
-  {events.length > 0 ? (
-    events.map((event, index) => (
-      <Box key={event._id} sx={{ marginBottom: 4 }}>
-        <Typography variant="h5" gutterBottom>
-          {event.name}
-        </Typography>
-        <Typography variant="body1">{event.description}</Typography>
-        <Typography variant="body2" color="textSecondary">
-          Event Date: {new Date(event.date).toLocaleDateString()} {/* Format the date */}
-        </Typography>
+{events.length > 0 ? (
+  events.map((event, index) => (
+    <Box key={event._id} sx={{ marginBottom: 4 }}>
+      <Button onClick={() => navigate(`/event/${event._id}`)}>
+        Event
+      </Button>
+      <Typography variant="h5" gutterBottom>
+        {event.name}
+      </Typography>
+      <Typography variant="body1">{event.description}</Typography>
+      <Typography variant="body2" color="textSecondary">
+        Event Date: {new Date(event.date).toLocaleDateString()}{" "}
+        {/* Format the date */}
+      </Typography>
 
-        <Grid container spacing={4}>
-          {event.images && event.images.length > 0 ? (
-            event.images.slice(0, showAllImages ? event.images.length : 5).map((image, imgIndex) => (
+      <Grid container spacing={4}>
+        {event.images && event.images.length > 0 ? (
+          event.images
+            .slice(0, showAllImages ? event.images.length : 5)
+            .map((image, imgIndex) => (
               <Grid item xs={12} sm={4} mt={3} key={imgIndex}>
                 <Card sx={{ height: "250px" }}>
                   <CardMedia
@@ -338,114 +242,77 @@ useEffect(() => {
                       cursor: "pointer",
                       objectFit: "contain",
                     }}
-                    onClick={() => handleImageModal(image)}
+                    onClick={() => handleImageModal(image, event._id)} // Pass event ID here
                   />
                 </Card>
               </Grid>
             ))
-          ) : (
-            <Typography variant="body1" sx={{ mt: 2 }}>
-              No images available for this event.
-            </Typography>
-          )}
-          {event.images && event.images.length > 5 && (
-            <Button
-              color="primary"
-              onClick={() => setShowAllImages(!showAllImages)}
-            >
-              {showAllImages ? "View Less" : "View More"}
-            </Button>
-          )}
-        </Grid>
-      </Box>
-    ))
-  ) : (
-    <Typography variant="body1">No events available</Typography>
-  )}
-</Box>
-
-      <Modal
-        open={mainImageModal.open}
-        onClose={handleCloseMainImageModal}
-        aria-labelledby="modal-image"
-        aria-describedby="modal-image-description"
-      >
-        <Box
-          sx={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            width: "40%",
-            bgcolor: "background.paper",
-            boxShadow: 24,
-            p: 4,
-            borderRadius: 2,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-          }}
-        >
-          {/* Close Button */}
-          <Box sx={{ alignSelf: "flex-end", mb: 2 }}>
-            <Button
-              onClick={handleCloseMainImageModal}
-              sx={{ minWidth: 0, p: 0 }}
-            >
-              <CloseIcon
-                sx={{
-                  color: "black",
-                  "&:hover": {
-                    color: "red",
-                  },
-                }}
-              />
-            </Button>
-          </Box>
-
-          {/* Image Section */}
-          {mainImageModal.imageUrl ? (
-            <CardMedia
-              component="img"
-              image={mainImageModal.imageUrl}
-              alt="Main Image"
-              sx={{
-                objectFit: "contain",
-                height: "400px",
-                width: "400px",
-                mb: 2,
-              }}
-            />
-          ) : (
-            <Typography variant="body1">No image available</Typography>
-          )}
-
-          {/* Interaction Buttons Section */}
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              width: "100%",
-            }}
+        ) : (
+          <Typography variant="body1" sx={{ mt: 2 }}>
+            No images available for this event.
+          </Typography>
+        )}
+        {event.images && event.images.length > 5 && (
+          <Button
+            color="primary"
+            onClick={() => setShowAllImages(!showAllImages)}
           >
-            <Box sx={{ fontWeight: "bold" }}>{mainImageModal.imageId}</Box>
-            <Box sx={{ display: "flex", gap: 1 }}>
-              <Button sx={{ minWidth: 0 }}>
-                <ThumbUpIcon />
-                {mainImageModal.likes}
-              </Button>
-              <Button sx={{ minWidth: 0 }}>
-                <ThumbDownIcon />
-                {mainImageModal.dislikes}
-              </Button>
-              <Button sx={{ minWidth: 0 }}>
-                <FavoriteIcon />
-                {mainImageModal.loves}
-              </Button>
-            </Box>
-          </Box>
-        </Box>
-      </Modal>
+            {showAllImages ? "View Less" : "View More"}
+          </Button>
+        )}
+      </Grid>
+    </Box>
+  ))
+) : (
+  <Typography variant="body1">No events available</Typography>
+)}
+
+{/* Modal to display the main image and EventLike component */}
+<Modal
+  open={mainImageModal.open}
+  onClose={handleCloseMainImageModal}
+  sx={{
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  }}
+>
+  <Box sx={style1}>
+    <Box
+      sx={{
+        position: "relative",
+        display: "flex",
+        justifyContent: "center",
+      }}
+    >
+      {mainImageModal.imageUrl ? (
+        <Card>
+          <CardMedia
+            component="img"
+            alt="Event Image"
+            image={mainImageModal.imageUrl}
+            sx={{ height: "300px", width: "500px", objectFit: "contain" }}
+          />
+          {/* Update this button to use the stored eventId */}
+          <Button onClick={() => navigate(`/event/${mainImageModal.eventId}`)}>
+            See More
+          </Button>
+        </Card>
+      ) : (
+        <p>No image available</p>
+      )}
+    </Box>
+
+    <EventLike
+      venueId={product._id}
+      imageId={mainImageModal.imageId}
+      initialLikes={mainImageModal.likes}
+      initialDislikes={mainImageModal.dislikes}
+      initialLoves={mainImageModal.loves}
+    />
+  </Box>
+</Modal>
+</Box>
     </Container>
   );
 };
