@@ -1,6 +1,18 @@
+
+
+
 const express = require('express');
+const cors = require('cors');
+const bcrypt = require('bcrypt'); // For password hashing
+const jwt = require('jsonwebtoken'); // For JWT
 const router = express.Router();
-const Login = require('../models/loginModal');
+const Login = require('../models/loginModal'); // Assuming you have a correct model path
+
+// Enable CORS
+router.use(cors());
+
+// Secret key for JWT signing (store it securely in environment variables)
+const JWT_SECRET = 'tryme';
 
 // GET route to fetch all logins
 router.get('/', async (req, res) => {
@@ -15,25 +27,55 @@ router.get('/', async (req, res) => {
   }
 });
 
-// POST route to create a new login
-router.post('/', async (req, res) => {
+// POST route to create a new login (Sign-up)
+router.post('/signup', async (req, res) => {
   const { email, password, security } = req.body;
 
-  const newLogin = new Login({
-    email,
-    password,
-    security
-  });
-
   try {
+    const existingUser = await Login.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: 'Email must be unique.' });
+    }
+
+    // Hash the password before saving
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newLogin = new Login({
+      email,
+      password: hashedPassword, // Store hashed password
+      security,
+    });
+
     const savedLogin = await newLogin.save();
     res.status(201).json(savedLogin);
   } catch (err) {
-    if (err.code === 11000) { // Duplicate email error
-      return res.status(400).json({ message: 'Email must be unique.' });
-    }
-    console.error('Error saving login:', err);
     res.status(500).json({ message: `Error saving login: ${err.message}` });
+  }
+});
+
+// POST route for login
+router.post('/login', async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const user = await Login.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ message: 'User not found' });
+    }
+
+    // Compare the provided password with the stored hashed password
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(400).json({ message: 'Invalid credentials' });
+    }
+
+    // Generate a token
+    const token = jwt.sign({ id: user._id, email: user.email }, JWT_SECRET, {
+      expiresIn: '1h', // Token expiry time
+    });
+
+    res.json({ message: 'Login successful', token });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
   }
 });
 
@@ -42,25 +84,18 @@ router.post('/reset-password', async (req, res) => {
   const { email, newPassword } = req.body;
 
   try {
-    // Step 1: Find the user by email
     const user = await Login.findOne({ email });
-    console.log(user, 'iuuuuuuuuuuuuuu')
     if (!user) {
-      // If user does not exist
       return res.status(404).json({ message: 'User not found with this email.' });
     }
 
-    // Step 3: Update the password
-    user.password = newPassword;
+    // Hash the new password before saving
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword;
 
-    // Save the updated user with the new password
     await user.save();
-
-    // Step 4: Respond with success
     res.status(200).json({ message: 'Password reset successfully.' });
-
   } catch (err) {
-    // Handle any errors
     res.status(500).json({ message: `Error resetting password: ${err.message}` });
   }
 });

@@ -8,7 +8,6 @@ const EventDetail = () => {
   const [events, setEvents] = useState([]); // State to hold an array of events
 
   useEffect(() => {
-    // Fetch the event details from your API using the event ID
     const fetchEventDetails = async () => {
       try {
         const response = await fetch(`http://localhost:5000/api/venue/event/${id}`);
