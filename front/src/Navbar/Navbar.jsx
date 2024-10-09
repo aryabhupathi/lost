@@ -15,7 +15,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import Face2Icon from '@mui/icons-material/Face2';
 import FlutterDashIcon from '@mui/icons-material/FlutterDash';
 
-const pages = ["Home", "About", "Venue"];
+const pages = ["Home", "Venue", "About"];
 const settings = ["UserName", "Forgot", 'Role'];
 
 function Navbar() {
