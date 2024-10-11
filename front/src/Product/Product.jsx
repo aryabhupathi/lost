@@ -1,5 +1,12 @@
 import { useState, useEffect } from "react";
-import { Button, Modal, Box, Pagination, CardMedia, Card } from "@mui/material";
+import {
+  Button,
+  Modal,
+  Box,
+  Pagination,
+  CardMedia,
+  Card,
+} from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
@@ -16,7 +23,6 @@ import style1 from "../Sstyle/Modal1";
 
 const Product = () => {
   const [data, setData] = useState([]);
-  const [showAdd, setShowAdd] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [selectedVenueId, setSelectedVenueId] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -29,6 +35,12 @@ const Product = () => {
   const [currentImageDislikes, setCurrentImageDislikes] = useState(0);
   const [currentImageLoves, setCurrentImageLoves] = useState(0);
   const itemsPerPage = 12;
+  const [showAdd, setShowAdd] = useState(false); // Control whether to show the AddForm
+
+  // Function to hide the AddForm
+  const handleHideAddForm = () => {
+    setShowAdd(true); // Hide form after submission
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -94,9 +106,9 @@ const Product = () => {
     let newLikeCount, newDislikeCount, newLoveCount;
 
     if (buttonType === "like") {
-      newLikeCount = liked ? -1 : 1; // Send only 1 or -1 for likes
+      newLikeCount = liked ? -1 : 1;
       setLiked((prev) => !prev);
-      if (disliked) setDisliked(false); // reset dislike if like is toggled
+      if (disliked) setDisliked(false);
       updateImageCounts(
         selectedVenueId,
         selectedImage,
@@ -105,9 +117,9 @@ const Product = () => {
         undefined
       );
     } else if (buttonType === "dislike") {
-      newDislikeCount = disliked ? -1 : 1; // Send only 1 or -1 for dislikes
+      newDislikeCount = disliked ? -1 : 1;
       setDisliked((prev) => !prev);
-      if (liked) setLiked(false); // reset like if dislike is toggled
+      if (liked) setLiked(false);
       updateImageCounts(
         selectedVenueId,
         selectedImage,
@@ -116,7 +128,7 @@ const Product = () => {
         undefined
       );
     } else if (buttonType === "love") {
-      newLoveCount = loved ? -1 : 1; // Send only 1 or -1 for love
+      newLoveCount = loved ? -1 : 1;
       setLoved((prev) => !prev);
       updateImageCounts(
         selectedVenueId,
@@ -166,165 +178,168 @@ const Product = () => {
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = data.slice(indexOfFirstItem, indexOfLastItem);
 
-  const handlePageChange = (value) => {
+  const handlePageChange = (event, value) => {
     setCurrentPage(value);
   };
 
   return (
-    <Grid container spacing={3} margin={3} sx={{ flexDirection: "column" }}>
-      {showAdd ? (
-        <AddForm />
-      ) : (
-        <>
-          <Grid
-            item
-            xs={12}
-            sx={{
-              display: "flex",
-              justifyContent: "flex-end",
-              marginBottom: 2,
-            }}
-          >
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={() => setShowAdd(true)}
+    <Grid
+      container
+      spacing={3}
+      sx={{ flexDirection: "column", backgroundImage: `url(/download11.jpeg)` }}
+    >
+      <Grid margin={3}>
+        {showAdd ? (
+          <AddForm showAdd={handleHideAddForm} />
+        ) : (
+          <Grid>
+            <Grid
+              item
+              xs={12}
+              sx={{
+                display: "flex",
+                justifyContent: "flex-end",
+                marginBottom: 2,
+              }}
             >
-              ADD NEW
-            </Button>
-          </Grid>
-          {data.length > 0 ? (
-            <DisplayCard
-              currentItems={currentItems}
-              handleImageClick={handleImageClick}
-              currentPage={currentPage}
-              handlePageChange={handlePageChange}
-              itemsPerPage={itemsPerPage}
-              handleViewMore={handleViewMore}
-              totalItems={data.length}
-            />
-          ) : (
-            <Grid item xs={12} display="flex" justifyContent="center">
-              <p>No products available. Add new items to get started!</p>
+              <Button
+                variant="contained"
+                onClick={() => setShowAdd(true)}
+                sx={{backgroundColor:'pink', color:'black'}}
+              >
+                ADD NEW
+              </Button>
             </Grid>
-          )}
-          <Grid xs={12} display={"flex"} justifyContent={"center"}>
-            <Pagination
-              count={Math.ceil(data.length / itemsPerPage)}
-              page={currentPage}
-              onChange={handlePageChange}
-              color="primary"
-              sx={{ mt: 3 }}
-              disabled={data.length === 0}
-            />
-          </Grid>
-        </>
-      )}
-
-      <Modal
-        open={isModalOpen}
-        onClose={handleCloseModal}
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <Box sx={style1}>
-          <Box
-            sx={{
-              position: "relative",
-              display: "flex",
-              justifyContent: "center",
-            }}
-          >
-            {selectedImage ? (
-              <Card>
-                <Button
-                  onClick={handlePrevImage}
-                  disabled={currentImageIndex === 0}
-                  sx={{
-                    position: "absolute",
-                    left: -40,
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                  }}
-                >
-                  <ArrowBackIcon />
-                </Button>
-                <CardMedia
-                  component="img"
-                  alt="green iguana"
-                  image={selectedImage}
-                  sx={{ height: "300px", width: "500px", objectFit: "contain" }}
-                />
-                <Button
-                  onClick={handleNextImage}
-                  sx={{
-                    position: "absolute",
-                    right: -40,
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                  }}
-                  disabled={
-                    data.find((product) => product._id === selectedVenueId)
-                      ?.images.length ===
-                    currentImageIndex + 1
-                  }
-                >
-                  <ArrowForwardIcon />
-                </Button>
-              </Card>
+            {data.length > 0 ? (
+              <DisplayCard
+                currentItems={currentItems}
+                handleImageClick={handleImageClick}
+                currentPage={currentPage}
+                handlePageChange={handlePageChange}
+                itemsPerPage={itemsPerPage}
+                handleViewMore={handleViewMore}
+                totalItems={data.length}
+              />
             ) : (
-              <p>No image available</p>
+              <Grid item xs={12} display="flex" justifyContent="center">
+                <p>No products available. Add new items to get started!</p>
+              </Grid>
             )}
+            <Grid xs={12} display={"flex"} justifyContent={"center"}>
+              <Pagination
+                count={Math.ceil(data.length / itemsPerPage)}
+                page={currentPage}
+                onChange={handlePageChange}
+                sx={{ mt: 3,backgroundColor:'pink', color:'black'}}
+                disabled={data.length === 0}
+              />
+            </Grid>
+          </Grid>
+        )}
+
+        <Modal
+          open={isModalOpen}
+          onClose={handleCloseModal}
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Box sx={style1}>
+            <Box
+              sx={{
+                position: "relative",
+                display: "flex",
+                justifyContent: "center",
+              }}
+            >
+              {selectedImage ? (
+                <Card>
+                  <Button
+                    onClick={handlePrevImage}
+                    sx={{
+                      position: "absolute",
+                      left: -40,
+                      top: "50%",
+                      transform: "translateY(-50%)",
+                    }}
+                    disabled={currentImageIndex === 0}
+                  >
+                    <ArrowBackIcon />
+                  </Button>
+                  <CardMedia
+                    component="img"
+                    alt="green iguana"
+                    image={selectedImage}
+                    sx={{ height: "300px", width: "500px", objectFit: "contain" }}
+                  />
+                  <Button
+                    onClick={handleNextImage}
+                    sx={{
+                      position: "absolute",
+                      right: -40,
+                      top: "50%",
+                      transform: "translateY(-50%)",
+                    }}
+                    disabled={
+                      data.find((product) => product._id === selectedVenueId)
+                        ?.images.length === currentImageIndex + 1
+                    }
+                  >
+                    <ArrowForwardIcon />
+                  </Button>
+                </Card>
+              ) : (
+                <p>No image available</p>
+              )}
+            </Box>
+            <Box sx={{ display: "flex", justifyContent: "center" }}>
+              <Button
+                onClick={() => handleButtonClick("like")}
+                color="primary"
+                startIcon={
+                  liked ? (
+                    <ThumbUpIcon sx={{ color: "green" }} />
+                  ) : (
+                    <ThumbUpOutlinedIcon sx={{ color: "green" }} />
+                  )
+                }
+              >
+                {currentImageLikes}
+              </Button>
+              <Button
+                onClick={() => handleButtonClick("dislike")}
+                color="primary"
+                startIcon={
+                  disliked ? (
+                    <ThumbDownIcon sx={{ color: "yellow" }} />
+                  ) : (
+                    <ThumbDownAltOutlinedIcon sx={{ color: "yellow" }} />
+                  )
+                }
+              >
+                {currentImageDislikes}
+              </Button>
+              <Button
+                onClick={() => handleButtonClick("love")}
+                color="primary"
+                startIcon={
+                  loved ? (
+                    <FavoriteIcon sx={{ color: "red" }} />
+                  ) : (
+                    <FavoriteBorderOutlinedIcon sx={{ color: "red" }} />
+                  )
+                }
+              >
+                {currentImageLoves}
+              </Button>
+            </Box>
           </Box>
-          <Box sx={{ display: "flex", justifyContent: "center" }}>
-            <Button
-              onClick={() => handleButtonClick("like")}
-              color="primary"
-              startIcon={
-                liked ? (
-                  <ThumbUpIcon sx={{ color: "green" }} />
-                ) : (
-                  <ThumbUpOutlinedIcon sx={{ color: "green" }} />
-                )
-              }
-            >
-              {currentImageLikes}
-            </Button>
-            <Button
-              onClick={() => handleButtonClick("dislike")}
-              color="primary"
-              startIcon={
-                disliked ? (
-                  <ThumbDownIcon sx={{ color: "yellow" }} />
-                ) : (
-                  <ThumbDownAltOutlinedIcon sx={{ color: "yellow" }} />
-                )
-              }
-            >
-              {currentImageDislikes}
-            </Button>
-            <Button
-              onClick={() => handleButtonClick("love")}
-              color="primary"
-              startIcon={
-                loved ? (
-                  <FavoriteIcon sx={{ color: "red" }} />
-                ) : (
-                  <FavoriteBorderOutlinedIcon sx={{ color: "red" }} />
-                )
-              }
-            >
-              {currentImageLoves}
-            </Button>
-          </Box>
-        </Box>
-      </Modal>
+        </Modal>
+      </Grid>
     </Grid>
   );
 };
 
 export default Product;
-

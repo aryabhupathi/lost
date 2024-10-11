@@ -25,22 +25,6 @@ const Filternames = ({ onFilterChange }) => {
   const isMobile = useMediaQuery(theme.breakpoints.down("md")); // Detect if the screen is md, sm, or xs
 
   // Predefined height, weight, and days ranges
-  const heightRanges = {
-    "1-5": [1, 5],
-    "5-15": [5, 15],
-    "15-30": [15, 30],
-    "30-45": [30, 45],
-    "45-70": [45, 70],
-    "above 70": [71, Infinity],
-  };
-
-  const weightRanges = {
-    "0-50": [0, 50],
-    "50-100": [50, 100],
-    "100-200": [100, 200],
-    "200-400": [200, 400],
-    "above 400": [401, Infinity],
-  };
 
   const daysRanges = {
     "1-3": [1, 3],
@@ -52,8 +36,6 @@ const Filternames = ({ onFilterChange }) => {
 
   const [tempFilters, setTempFilters] = useState({
     community: [],
-    height: [],
-    weight: [],
     days: [],
     category: [],
     type: [],
@@ -91,22 +73,6 @@ const Filternames = ({ onFilterChange }) => {
     setTempFilters((prev) => ({ ...prev, community: newSelection }));
   };
 
-  const handleHeightChange = (range) => {
-    const newSelection = tempFilters.height.includes(range)
-      ? tempFilters.height.filter((h) => h !== range)
-      : [...tempFilters.height, range];
-
-    setTempFilters((prev) => ({ ...prev, height: newSelection }));
-  };
-
-  const handleWeightChange = (range) => {
-    const newSelection = tempFilters.weight.includes(range)
-      ? tempFilters.weight.filter((w) => w !== range)
-      : [...tempFilters.weight, range];
-
-    setTempFilters((prev) => ({ ...prev, weight: newSelection }));
-  };
-
   const handleDayChange = (range) => {
     const newSelection = tempFilters.days.includes(range)
       ? tempFilters.days.filter((d) => d !== range)
@@ -133,14 +99,10 @@ const Filternames = ({ onFilterChange }) => {
 
   const applyFilters = () => {
     // Send the selected filters to the parent component
-    const heightValues = tempFilters.height.map((r) => heightRanges[r]);
-    const weightValues = tempFilters.weight.map((r) => weightRanges[r]);
     const dayValues = tempFilters.days.map((r) => daysRanges[r]);
 
     onFilterChange({
       community: tempFilters.community,
-      height: heightValues,
-      weight: weightValues,
       days: dayValues,
       category: tempFilters.category,
       type: tempFilters.type,
@@ -181,76 +143,6 @@ const Filternames = ({ onFilterChange }) => {
                     />
                   }
                   label={community}
-                />
-              ))}
-            </AccordionDetails>
-          </Accordion>
-
-          {/* Height Filter */}
-          <Accordion
-            expanded={currentPanel === "panel2"}
-            onChange={() => handleAccordionChange("panel2")}
-          >
-            <AccordionSummary
-              expandIcon={<ExpandMoreIcon />}
-              aria-controls="panel2-content"
-              id="panel2-header"
-            >
-              <Typography>Height</Typography>
-            </AccordionSummary>
-            <AccordionDetails
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                maxHeight: "200px",
-                overflowY: "auto",
-              }} // Limit height and add scroll
-            >
-              {Object.keys(heightRanges).map((range, index) => (
-                <FormControlLabel
-                  key={index}
-                  control={
-                    <Checkbox
-                      checked={tempFilters.height.includes(range)}
-                      onChange={() => handleHeightChange(range)}
-                    />
-                  }
-                  label={range}
-                />
-              ))}
-            </AccordionDetails>
-          </Accordion>
-
-          {/* Weight Filter */}
-          <Accordion
-            expanded={currentPanel === "panel3"}
-            onChange={() => handleAccordionChange("panel3")}
-          >
-            <AccordionSummary
-              expandIcon={<ExpandMoreIcon />}
-              aria-controls="panel3-content"
-              id="panel3-header"
-            >
-              <Typography>Weight</Typography>
-            </AccordionSummary>
-            <AccordionDetails
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                maxHeight: "200px",
-                overflowY: "auto",
-              }} // Limit height and add scroll
-            >
-              {Object.keys(weightRanges).map((range, index) => (
-                <FormControlLabel
-                  key={index}
-                  control={
-                    <Checkbox
-                      checked={tempFilters.weight.includes(range)}
-                      onChange={() => handleWeightChange(range)}
-                    />
-                  }
-                  label={range}
                 />
               ))}
             </AccordionDetails>
@@ -365,7 +257,7 @@ const Filternames = ({ onFilterChange }) => {
         <Grid
           sx={{ display: "flex", justifyContent: "center", marginTop: "3px" }}
         >
-          <Button variant="contained" onClick={applyFilters}>
+          <Button variant="contained" onClick={applyFilters} sx={{backgroundColor:'pink', color:'black'}}>
             Apply Filter
           </Button>
         </Grid>

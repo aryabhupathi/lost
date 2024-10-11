@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
@@ -11,16 +12,17 @@ import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 import { Link } from "react-router-dom";
-import MenuIcon from '@mui/icons-material/Menu';
-import Face2Icon from '@mui/icons-material/Face2';
-import FlutterDashIcon from '@mui/icons-material/FlutterDash';
+import MenuIcon from "@mui/icons-material/Menu";
+import Face2Icon from "@mui/icons-material/Face2";
+import FlutterDashIcon from "@mui/icons-material/FlutterDash";
 
 const pages = ["Home", "Venue", "About"];
-const settings = ["UserName", "Forgot", 'Role'];
+const settings = ["Arya", "Logout", "Owner"];
 
 function Navbar() {
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
+  const navigate = useNavigate(); // Initialize useNavigate
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
@@ -37,9 +39,14 @@ function Navbar() {
     setAnchorElUser(null);
   };
 
+  const handleLogout = () => {
+    // Perform any logout logic here, e.g., clearing authentication tokens
+    navigate("/"); // Navigate to the login page after logout
+  };
+
   return (
-    <AppBar position="static" sx={{backgroundColor:'pink'}}>
-      <Container >
+    <AppBar position="static" sx={{ backgroundColor: "pink" }}>
+      <Container>
         <Toolbar disableGutters>
           <Typography
             variant="h6"
@@ -58,7 +65,8 @@ function Navbar() {
           >
             LOGO
           </Typography>
-          <Face2Icon sx={{color:'red', padding:'3px'}}/><FlutterDashIcon sx={{color:'red'}}/>
+          <Face2Icon sx={{ color: "red", padding: "3px" }} />
+          <FlutterDashIcon sx={{ color: "red" }} />
 
           <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
             <IconButton
@@ -69,7 +77,7 @@ function Navbar() {
               onClick={handleOpenNavMenu}
               color="inherit"
             >
-              <MenuIcon sx={{color:'red'}}/>
+              <MenuIcon sx={{ color: "red" }} />
             </IconButton>
             <Menu
               id="menu-appbar"
@@ -89,13 +97,17 @@ function Navbar() {
             >
               {pages.map((page) => (
                 <MenuItem key={page} onClick={handleCloseNavMenu}>
-               <Link to={`/${page.toLowerCase()}`} style={{ textDecoration: "none", color: "red" }}>
-                      {page}
-                    </Link>
+                  <Link
+                    to={`/${page.toLowerCase()}`}
+                    style={{ textDecoration: "none", color: "red" }}
+                  >
+                    {page}
+                  </Link>
                 </MenuItem>
               ))}
             </Menu>
           </Box>
+
           <Typography
             variant="h5"
             noWrap
@@ -128,9 +140,12 @@ function Navbar() {
                 onClick={handleCloseNavMenu}
                 sx={{ my: 2, color: "white", display: "block" }}
               >
-               <Link to={`/${page.toLowerCase()}`} style={{ textDecoration: "none", color: "red" }}>
-                      {page}
-                    </Link>
+                <Link
+                  to={`/${page.toLowerCase()}`}
+                  style={{ textDecoration: "none", color: "red" }}
+                >
+                  {page}
+                </Link>
               </Button>
             ))}
           </Box>
@@ -157,19 +172,24 @@ function Navbar() {
               onClose={handleCloseUserMenu}
             >
               {settings.map((setting) => (
-                <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                  <Typography sx={{ textAlign: "center" }}>
-                    {setting}
-                  </Typography>
+                <MenuItem
+                  key={setting}
+                  onClick={
+                    setting === "Logout" ? handleLogout : handleCloseUserMenu
+                  }
+                >
                   <Button
-                key={setting}
-                onClick={handleCloseNavMenu}
-                sx={{ my: 2, color: "white", display: "block" }}
-              >
-               <Link to={`/${setting.toLowerCase()}`} style={{ textDecoration: "none", color: "red" }}>
+                    key={setting}
+                    onClick={handleCloseNavMenu}
+                    sx={{ my: 2, color: "white", display: "block" }}
+                  >
+                    <Link
+                      to={'/about'}
+                      style={{ textDecoration: "none", color: "red" }}
+                    >
                       {setting}
                     </Link>
-              </Button>
+                  </Button>
                 </MenuItem>
               ))}
             </Menu>
@@ -179,4 +199,5 @@ function Navbar() {
     </AppBar>
   );
 }
+
 export default Navbar;

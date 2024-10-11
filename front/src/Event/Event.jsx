@@ -27,9 +27,10 @@ const EventDetail = () => {
   }
 
   return (
-    <div>
+    <Grid sx = {{
+        backgroundImage: `url(/download11.jpeg)`}}>
       {events.map((event) => (
-        <div key={event._id} style={{ marginBottom: '20px' }}>
+        <Grid key={event._id} style={{ padding:'20px'}}>
           <Typography variant="h4">{event.name}</Typography>
           <Typography variant="body1">{event.description}</Typography>
           <Typography variant="body2">Category: {event.category}</Typography>
@@ -70,9 +71,9 @@ const EventDetail = () => {
               </Typography>
             )}
           </Grid>
-        </div>
+        </Grid>
       ))}
-    </div>
+    </Grid>
   );
 };
 

@@ -29,18 +29,6 @@ const DisplayCard = ({ currentItems, handleImageClick, handleViewMore }) => {
       filters.community.length === 0 ||
       filters.community.includes(item.community);
 
-    const isHeightMatch =
-      filters.height.length === 0 ||
-      filters.height.some(
-        ([min, max]) => item.height >= min && item.height <= max
-      );
-
-    const isWeightMatch =
-      filters.weight.length === 0 ||
-      filters.weight.some(
-        ([min, max]) => item.weight >= min && item.weight <= max
-      );
-
     const isDaysMatch =
       filters.days.length === 0 ||
       filters.days.some(([min, max]) => item.days >= min && item.days <= max);
@@ -52,8 +40,6 @@ const DisplayCard = ({ currentItems, handleImageClick, handleViewMore }) => {
 
     return (
       isCommunityMatch &&
-      isHeightMatch &&
-      isWeightMatch &&
       isDaysMatch &&
       isCategoryMatch &&
       isTypeMatch
@@ -75,7 +61,7 @@ const DisplayCard = ({ currentItems, handleImageClick, handleViewMore }) => {
           flexDirection: "column",
         }}
       >
-        <Typography variant="h6" align="center">
+        <Typography variant="h5" align="center">
           Filter
         </Typography>
         <Filternames onFilterChange={handleFilterChange} />
@@ -95,16 +81,18 @@ const DisplayCard = ({ currentItems, handleImageClick, handleViewMore }) => {
                   width: "250px",
                   display: "flex",
                   flexDirection: "column",
+                  backgroundImage: `url(/download11.jpeg)`,
+                  border:'2px solid red'
                 }}
               >
-                <CardMedia sx={{ height: 140 }}>
+                <CardMedia sx={{ height: 200 }}>
                   <img
                     src={product.images[0]?.imageUrl}
                     alt="Product"
                     style={{
                       width: "100%",
                       height: "100%",
-                      objectFit: "cover",
+                      objectFit: "fill",
                     }}
                   />
                 </CardMedia>

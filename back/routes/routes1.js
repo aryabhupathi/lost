@@ -2,6 +2,40 @@ const express = require("express");
 const router = express.Router();
 const { Venue, Event } = require("../models/modal1"); // Destructure the imported models
 
+router.get("/top-images", async (req, res) => {
+  try {
+    // Fetch all venues
+    const venues = await Venue.find();
+
+    // Collect all images with their respective venue details
+    const images = venues.flatMap(venue => 
+      venue.images.map(image => ({
+        imageUrl: image.imageUrl,  // Image URL
+        likes: image.like,         // Number of likes
+        dislikes: image.dislike,   // Number of dislikes
+        loves: image.love,         // Number of loves
+        venueName: venue.name,     // Venue name
+        venueAddress: venue.address // Venue address
+      }))
+    );
+
+    // Sort images by likes in descending order
+    images.sort((a, b) => b.likes - a.likes);
+
+    // Get top 5 images
+    const topImages = images.slice(0, 5);
+
+    // Check if top images were found
+    if (topImages.length === 0) {
+      return res.status(404).json({ message: "No images found." });
+    }
+
+    res.status(200).json(topImages);
+  } catch (error) {
+    console.error("Error fetching top images:", error);
+    res.status(500).json({ message: "Error fetching top images" });
+  }
+});
 // GET all venues
 router.get("/", async (req, res) => {
   try {
@@ -131,7 +165,6 @@ router.put("/event/:venueId/images/:imageId", async (req, res) => {
 
     // Locate the specific image in the images array
     const image = event.images.find(img => img._id.toString() === imageId);
-console.log(image, 'klklklklklklklklklklklklkl');
     if (!image) {
       return res
         .status(404)
@@ -153,5 +186,6 @@ console.log(image, 'klklklklklklklklklklklklkl');
     res.status(500).json({ message: "Error updating image counts", error });
   }
 });
+
 
 module.exports = router;

@@ -188,22 +188,6 @@ const Home = () => {
       >
         <ReviewSection />
       </Grid>
-
-      {/* Footer Section */}
-      <Grid
-        item
-        xs={12}
-        sx={{
-          backgroundColor: "black",
-          padding: 2,
-          borderRadius: "8px",
-          textAlign: "center",
-        }}
-      >
-        <Typography variant="h6" sx={{ color: "white" }}>
-          © 2024 Festival Inc. | All Rights Reserved
-        </Typography>
-      </Grid>
     </Grid>
   );
 };
